@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#FFFFFF;--sidebar:#FAFBFA;--border:#E8E5E0;--blue:#2383E2;--red:#E03E3E;--orange:#D9730D;--green:#0F7B6C;--purple:#7C3AED;--text1:#37352F;--text2:#787774;--text3:#B4B4B0;--card:#FFFFFF;--hover:#F7F7F5;--font:-apple-system,'Inter','Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font);color:var(--text1);background:var(--bg);height:100vh;overflow:hidden;display:flex}
+body{font-family:var(--font);color:var(--text1);background:var(--bg);height:100vh;overflow:hidden;display:flex;flex-direction:column}
 /* Nav */
 .nav{width:60px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:8px;flex-shrink:0}
 .nav-item{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:background .15s}
@@ -141,6 +141,8 @@ body{font-family:var(--font);color:var(--text1);background:var(--bg);height:100v
 </style>
 </head>
 <body>
+<nav style="background:#16132e;padding:0 20px;display:flex;align-items:center;height:44px;font-family:-apple-system,Inter,sans-serif;flex-shrink:0"><a href="/concordia-demos/" style="font-size:13px;font-weight:700;color:#fff;text-decoration:none;margin-right:28px;display:flex;align-items:center;gap:7px"><span style="width:20px;height:20px;border-radius:5px;background:#2383E2;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:800">C</span>Concordia</a><a href="/concordia-demos/" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">产品文档</a><a href="/concordia-demos/v8-demo.html" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">V8 工作台</a><a href="/concordia-demos/v7-demo.html" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">V7 版本</a><a href="/concordia-demos/multicarbon.html" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">多碳多硅</a></nav>
+<div style="flex:1;display:flex;overflow:hidden;min-height:0">
 <!-- Navigation -->
 <nav class="nav">
 <div class="nav-item active" data-tab="home" onclick="switchTab('home')">
@@ -636,5 +638,6 @@ renderWsContent('overview');
 showMeeting('sync');
 showCandidate('zhangxm');
 </script>
+</div>
 </body>
 </html>
