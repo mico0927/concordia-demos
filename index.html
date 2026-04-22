@@ -449,49 +449,6 @@
 
 <p>多碳多硅要解决的是：<strong>让 AI 之间也产生协作，而不只是人和 AI 之间。</strong></p>
 
-<h3>三层递进</h3>
-
-<h4>第一层：AI 代表（AI Proxy）</h4>
-
-<p>每个人的 AI 不只帮自己，还能<strong>代表这个人</strong>向团队汇报。</p>
-
-<pre><code>传统：人 ←→ 人 ←→ 人（必须同时在线，必须开会）
-多碳多硅：人 → AI → 项目空间 ← AI ← 人（人不需要同时在线）</code></pre>
-
-<p>你下班了，但你的 AI 知道你今天做了什么。Dawei 晚上 11 点想看进度，不需要 @ 你，你的 AI 会回答。</p>
-
-<p><strong>用户感知</strong>：项目概览页里每个成员旁边有 <code>🤖 AI 更新 · 2h 前</code>——用户知道这不是人手动更新的，是 AI 在自动做。</p>
-
-<h4>第二层：AI 关联发现</h4>
-
-<p>当多个人的 AI 信息汇聚到项目空间，<strong>项目 AI 能发现人自己发现不了的关联</strong>。</p>
-
-<pre><code>Shan 的 AI：评测发现"多轮对话"通过率只有 75%
-Yana 的 AI：Sales 用户反馈"AI 记不住上下文"
-        ↓
-项目 AI 发现：这两个问题是同一个根因——多轮记忆能力不足</code></pre>
-
-<p><strong>人看到的是"两个独立的问题"，AI 看到的是"一个根因"。</strong></p>
-
-<p>另一个例子：</p>
-
-<pre><code>Yana 的 AI：Sales onboarding 被 DevBox 权限卡住
-Danxia 的 AI：Marketing demo 依赖 Sales 数据
-        ↓
-项目 AI 发现：DevBox 权限问题有连锁影响——不只影响 Yana，还影响 Danxia</code></pre>
-
-<h4>第三层：AI 自主协作</h4>
-
-<pre><code>Yana 的 AI：需要 DevBox 权限
-  → 自动检查：谁能解决？→ Jian 的 AI 有 DevBox 管理能力
-  → Yana 的 AI → Jian 的 AI："能帮开权限吗？"
-  → Jian 的 AI 检查日程："Jian 周三有空，已创建工作项"
-  → 通知 Jian："确认一下？"
-  → Jian："确认"
-  → 通知 Yana："权限问题 Jian 周三处理"
-
-全程两个人各说了一个字。AI 之间完成了协调。</code></pre>
-
 <h3>多碳多硅在 V8 中的落地形态</h3>
 
 <p><strong>不是一个独立的"多碳多硅"页面，而是自然地融入现有结构。</strong></p>
