@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concordia 0.3 · 项目空间</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,Inter,'Segoe UI',sans-serif;background:#fff;color:#37352F;font-size:14px;overflow:hidden;height:100vh}
+.topbar{height:48px;border-bottom:1px solid #E8E5E0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fff;position:relative;z-index:10}
+.logo{display:flex;align-items:center;gap:10px;font-size:14px;color:#37352F}
+.logo-icon{width:28px;height:28px;background:#2383E2;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+.logo span{color:#9B9A97;font-size:13px}
+.team-bar{display:flex;align-items:center;gap:12px}
+.avatars{display:flex}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:600;margin-left:-8px;border:2px solid #fff;cursor:pointer;position:relative;transition:transform .15s}
+.avatar:first-child{margin-left:0}
+.avatar:hover{transform:scale(1.15);z-index:2}
+.avatar .tip{display:none;position:absolute;top:36px;left:50%;transform:translateX(-50%);background:#37352F;color:#fff;padding:4px 10px;border-radius:4px;font-size:11px;white-space:nowrap;z-index:99}
+.avatar:hover .tip{display:block}
+.team-text{font-size:12px;color:#9B9A97}
+.main{display:flex;height:calc(100vh - 48px)}
+.left{width:60%;overflow-y:auto;padding:24px 28px;border-right:1px solid #E8E5E0}
+.right{width:40%;display:flex;flex-direction:column;background:#FAFBFA}
+.section{margin-bottom:24px}
+.section-title{font-size:13px;font-weight:600;color:#9B9A97;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+/* Health */
+.health{background:#FAFBFA;border:1px solid #E8E5E0;border-radius:8px;padding:16px;cursor:pointer;transition:box-shadow .2s}
+.health:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.health-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.health-top .badge{background:#FDEBAD;color:#9D6B00;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.progress-bar{height:6px;background:#E8E5E0;border-radius:3px;overflow:hidden;margin-bottom:10px}
+.progress-fill{height:100%;background:#F5C542;border-radius:3px;width:65%;transition:width .6s}
+.health-info{font-size:13px;color:#37352F;line-height:1.6}
+.health-info .warn{color:#E03E3E}
+/* Cards */
+.card{background:#fff;border:1px solid #E8E5E0;border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:box-shadow .2s,transform .2s}
+.card:hover{box-shadow:0 3px 10px rgba(0,0,0,.07);transform:translateY(-1px)}
+.card.blocked{border-left:3px solid #E03E3E}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0}
+.card-name{font-weight:600;font-size:14px}
+.card-status{font-size:12px;margin-left:auto;display:flex;align-items:center;gap:4px}
+.pulse{width:8px;height:8px;border-radius:50%;background:#4DAA57;display:inline-block;animation:pulse 2s infinite}
+.pulse.warn{background:#E03E3E;animation:pulse-warn 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(77,170,87,.4)}50%{opacity:.8;box-shadow:0 0 0 4px rgba(77,170,87,0)}}
+@keyframes pulse-warn{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(224,62,62,.4)}50%{opacity:.8;box-shadow:0 0 0 4px rgba(224,62,62,0)}}
+.card-body{font-size:13px;line-height:1.65;color:#37352F;margin-bottom:6px}
+.card-meta{font-size:11px;color:#9B9A97;display:flex;justify-content:space-between}
+/* Insights */
+.insight{background:#E8F0FE;border:1px solid #C4D9F5;border-radius:8px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:box-shadow .2s}
+.insight:hover{box-shadow:0 2px 8px rgba(35,131,226,.12)}
+.insight-title{font-weight:600;font-size:13px;margin-bottom:6px;color:#2383E2}
+.insight-body{font-size:13px;line-height:1.6;color:#37352F}
+/* Decisions */
+.decision{border-left:3px solid #E03E3E;background:#fff;border-top:1px solid #E8E5E0;border-right:1px solid #E8E5E0;border-bottom:1px solid #E8E5E0;border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:10px}
+.decision-title{font-weight:600;font-size:14px;margin-bottom:6px}
+.decision-body{font-size:13px;line-height:1.6;margin-bottom:10px;color:#37352F}
+.decision-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:6px 14px;border-radius:6px;border:1px solid #E8E5E0;background:#fff;font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-primary{background:#2383E2;color:#fff;border-color:#2383E2}
+.btn:hover{opacity:.85}
+/* Right Panel */
+.right-header{padding:16px 20px;border-bottom:1px solid #E8E5E0;font-weight:600;font-size:14px;color:#37352F;background:#fff}
+.right-content{flex:1;overflow-y:auto;padding:20px;transition:opacity .25s}
+.right-content.fade{opacity:0}
+.chat-msg{margin-bottom:16px;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.chat-msg .ai-icon{width:28px;height:28px;background:#2383E2;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+.chat-bubble{background:#F1F1EF;border-radius:0 12px 12px 12px;padding:12px 14px;font-size:13px;line-height:1.65;max-width:100%}
+.chat-row{display:flex;gap:10px;align-items:flex-start}
+.chat-input-wrap{padding:12px 20px;border-top:1px solid #E8E5E0;background:#fff}
+.chat-input{width:100%;border:1px solid #E8E5E0;border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;resize:none;height:40px}
+.chat-input:focus{border-color:#2383E2}
+.detail-section{margin-bottom:14px}
+.detail-section h4{font-size:13px;font-weight:600;margin-bottom:6px;color:#37352F}
+.detail-section p,.detail-section li{font-size:13px;line-height:1.6;color:#555}
+.detail-section ul{padding-left:18px}
+.release-item{font-size:13px;line-height:1.8}
+.release-item.yes{color:#4DAA57}
+.release-item.no{color:#E03E3E}
+.left::-webkit-scrollbar,.right-content::-webkit-scrollbar{width:4px}
+.left::-webkit-scrollbar-thumb,.right-content::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">C</div>
+    <b>Concordia 0.3</b> <span>· 项目空间</span>
+  </div>
+  <div class="team-bar">
+    <div class="avatars">
+      <div class="avatar" style="background:#2383E2" data-member="yc"><span>YC</span><div class="tip">Yuecong · PM Lead · AI 🟢</div></div>
+      <div class="avatar" style="background:#4DAA57" data-member="sp"><span>SP</span><div class="tip">Shan · 评测 & Skill · AI 🟢</div></div>
+      <div class="avatar" style="background:#E88B30" data-member="yy"><span>YY</span><div class="tip">Yana · Sales & 开源 · AI ⚠️</div></div>
+      <div class="avatar" style="background:#E03E3E" data-member="jl"><span>JL</span><div class="tip">Jian · 基础设施 · AI 🟢</div></div>
+      <div class="avatar" style="background:#9B59B6" data-member="dw"><span>DW</span><div class="tip">Danxia · Marketing · AI 🟢</div></div>
+      <div class="avatar" style="background:#E91E8C" data-member="jz"><span>JZ</span><div class="tip">Jing · 设计 · AI 🟢</div></div>
+    </div>
+    <div class="team-text">6 位成员 · 5 个 AI 活跃</div>
+  </div>
+</div>
+<div class="main">
+  <div class="left">
+    <div class="section">
+      <div class="section-title">📊 项目健康度</div>
+      <div class="health" onclick="showPanel('health')">
+        <div class="health-top"><span style="font-weight:600">总体进度 65%</span><span class="badge">⚠ 注意</span></div>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <div class="health-info">
+          📅 4/30 发布倒计时：<b>8 天</b><br>
+          <span class="warn">⚠️ 1 个阻塞：Sales DevBox 权限（影响 2 条线）</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">🤖 团队 AI 汇报</div>
+      <div class="card" onclick="showPanel('yc')">
+        <div class="card-header">
+          <div class="card-avatar" style="background:#2383E2">YC</div>
+          <span class="card-name">Yuecong 的 AI</span>
+          <span class="card-status"><span class="pulse"></span> 在线</span>
+        </div>
+        <div class="card-body">Proactive v4 已部署，Pipeline 今天触发 7 次。Feature List 待更新（Aibo 上周六要求）。今天 13:30 dogfood 会重点验证 Pipeline 链路。</div>
+        <div class="card-meta"><span>📎 综合自 Teams 消息 + 日历 + TODO.md</span><span>2 小时前</span></div>
+      </div>
+      <div class="card" onclick="showPanel('sp')">
+        <div class="card-header">
+          <div class="card-avatar" style="background:#4DAA57">SP</div>
+          <span class="card-name">Shan 的 AI</span>
+          <span class="card-status"><span class="pulse"></span> 在线</span>
+        </div>
+        <div class="card-body">评测通过率 87%（↑12%）。Skill 标准化 ZIP 规范已发布，gap 分析完成。等待各负责人更新自己的 Skill。月底截止。SI% 指标方案和 Yuecong 共同负责，下周交第一版。</div>
+        <div class="card-meta"><span>📎 综合自 Teams 消息 + ADO 工作项</span><span>3 小时前</span></div>
+      </div>
+      <div class="card blocked" onclick="showPanel('yy')">
+        <div class="card-header">
+          <div class="card-avatar" style="background:#E88B30">YY</div>
+          <span class="card-name">Yana 的 AI</span>
+          <span class="card-status"><span class="pulse warn"></span> 阻塞中</span>
+        </div>
+        <div class="card-body">Sales onboarding 被 DevBox 权限卡住（第 3 天）。已通知 Jian 的 AI 协调，Jian 建议周三处理。开源提案（Meeting Autopilot）已发送，等 Yuecong 回复方向。</div>
+        <div class="card-meta"><span>📎 综合自 Teams + 邮件</span><span>1 小时前</span></div>
+      </div>
+      <div class="card" onclick="showPanel('jl')">
+        <div class="card-header">
+          <div class="card-avatar" style="background:#E03E3E">JL</div>
+          <span class="card-name">Jian 的 AI</span>
+          <span class="card-status"><span class="pulse"></span> 在线</span>
+        </div>
+        <div class="card-body">Gateway 新版本已上线，稳定运行。收到 Yana 的 DevBox 权限请求，已创建 ADO 工作项 #120456，计划周三处理。DevBox 评估方案文档已更新。</div>
+        <div class="card-meta"><span>📎 综合自 ADO + Teams</span><span>4 小时前</span></div>
+      </div>
+      <div class="card" onclick="showPanel('dw')">
+        <div class="card-header">
+          <div class="card-avatar" style="background:#9B59B6">DW</div>
+          <span class="card-name">Danxia 的 AI</span>
+          <span class="card-status"><span class="pulse"></span> 在线</span>
+        </div>
+        <div class="card-body">Marketing onboarding 推进中，本周 3 个会议。Dynamic UI/Skills 设计迭代。⚠️ Marketing demo 依赖 Sales 数据——如果 DevBox 权限不解决，demo 也会受影响。</div>
+        <div class="card-meta"><span>📎 综合自日历 + Teams</span><span>5 小时前</span></div>
+      </div>
+      <div class="card" onclick="showPanel('jz')">
+        <div class="card-header">
+          <div class="card-avatar" style="background:#E91E8C">JZ</div>
+          <span class="card-name">Jing 的 AI</span>
+          <span class="card-status"><span class="pulse"></span> 在线</span>
+        </div>
+        <div class="card-body">Dynamic UI 模板优化中：布局/配色/响应式适配。Figma 评论等 Yuecong 确认方向（已发 16+ 条评论）。</div>
+        <div class="card-meta"><span>📎 综合自 Figma 通知</span><span>6 小时前</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">💡 AI 发现的关联</div>
+      <div class="insight" onclick="showPanel('insight1')">
+        <div class="insight-title">💡 DevBox 权限 → 连锁影响</div>
+        <div class="insight-body">Yana 的 Sales onboarding 被卡（第 3 天）→ Danxia 的 Marketing demo 也会受影响（依赖 Sales 数据）。如果不在周三前解决，4/30 发布的 Marketing 场景可能无法演示。建议让 Jian 提前到明天处理。</div>
+      </div>
+      <div class="insight" onclick="showPanel('insight2')">
+        <div class="insight-title">💡 评测 + 用户反馈 = 同一根因</div>
+        <div class="insight-body">Shan 的评测里"多轮对话通过率 75%"和 Yana 收到的 Sales 用户反馈"AI 记不住上下文"指向同一个问题——多轮记忆能力不足。建议合并为一个 P0 改进项。</div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">🔴 需要决策</div>
+      <div class="decision">
+        <div class="decision-title">1. DevBox 权限优先级</div>
+        <div class="decision-body">Yana 的 AI 和 Jian 的 AI 已协调好方案。Jian 计划周三处理，但考虑到 Marketing demo 依赖，建议提前到明天。</div>
+        <div class="decision-btns">
+          <button class="btn btn-primary" onclick="event.stopPropagation();decide('devbox','tomorrow')">同意提前到明天</button>
+          <button class="btn" onclick="event.stopPropagation();decide('devbox','wed')">保持周三</button>
+        </div>
+      </div>
+      <div class="decision">
+        <div class="decision-title">2. 4/30 发布范围确认</div>
+        <div class="decision-body">
+          基于团队所有 AI 的数据综合判断：<br>
+          <span class="release-item yes">✅ Proactive DailyBrief & Execution（87% 通过率）</span><br>
+          <span class="release-item yes">✅ 代参会 & 陪伴模式（标为 beta）</span><br>
+          <span class="release-item yes">✅ Old→New: HR 招聘 + Marketing Event</span><br>
+          <span class="release-item no">❌ Skill Store（Shan 标准化还在推进，月底截止）</span><br>
+          <span class="release-item no">❌ 部署方式（安装描述还未确定）</span>
+        </div>
+        <div class="decision-btns">
+          <button class="btn btn-primary" onclick="event.stopPropagation();decide('release','confirm')">确认这个范围</button>
+          <button class="btn" onclick="event.stopPropagation();decide('release','adjust')">调整范围</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="right-header">🤖 项目 AI 助手</div>
+    <div class="right-content" id="rightContent"></div>
+    <div class="chat-input-wrap">
+      <input class="chat-input" placeholder="跟项目 AI 对话..." onkeydown="if(event.key==='Enter')handleInput(this)">
+    </div>
+  </div>
+</div>
+<script>
+const panels={
+welcome:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon">C</div><div class="chat-bubble">👋 这是 Concordia 0.3 的项目空间。<br><br>6 位成员的 AI 正在持续更新各自的进展。你可以：<br>· 点击任何成员查看 TA 的详细动态<br>· 直接问我关于项目的任何问题<br>· 做出决策（DevBox 优先级 / 发布范围）<br><br>当前有 <b>1 个阻塞</b>需要关注：DevBox 权限问题影响了 2 条业务线。</div></div></div>`,
+health:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon">C</div><div class="chat-bubble"><b>📊 各模块详细进度</b><br><br><div class="detail-section"><ul><li>Proactive DailyBrief — <b>90%</b> ✅</li><li>Pipeline & Execution — <b>85%</b> ✅</li><li>代参会 & 陪伴模式 — <b>70%</b> beta</li><li>HR 招聘 Onboarding — <b>60%</b></li><li>Marketing Event — <b>50%</b> ⚠️ 依赖 DevBox</li><li>Sales Onboarding — <b>30%</b> 🔴 阻塞中</li><li>Skill Store — <b>40%</b> 延期</li><li>部署方式 — <b>20%</b> 未确定</li></ul></div>综合进度 <b>65%</b>，8 天后发布。关键路径：DevBox 权限 → Sales → Marketing。</div></div></div>`,
+yc:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon" style="background:#2383E2">YC</div><div class="chat-bubble"><b>Yuecong 的 AI 详细汇报</b><br><br><div class="detail-section"><h4>今日进展</h4><p>• Proactive v4 已部署至生产环境<br>• Pipeline 今天触发 7 次，均成功执行<br>• 13:30 dogfood 会议准备就绪</p></div><div class="detail-section"><h4>待办事项</h4><p>• Feature List 更新（Aibo 上周六要求）<br>• SI% 指标方案第一版（与 Shan 共同负责）<br>• Jing 的 Figma 评论需回复（16+ 条）<br>• Yana 的开源提案需回复方向</p></div><div class="detail-section"><h4>数据来源</h4><p>📧 Teams 消息 12 条 · 📅 日历 3 个事件 · 📋 TODO.md 5 项</p></div></div></div></div>`,
+sp:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon" style="background:#4DAA57">SP</div><div class="chat-bubble"><b>Shan 的 AI 详细汇报</b><br><br><div class="detail-section"><h4>评测数据</h4><p>• 整体通过率：87%（↑12%）<br>• 多轮对话通过率：75%（需关注）<br>• 单轮任务通过率：95%</p></div><div class="detail-section"><h4>Skill 标准化</h4><p>• ZIP 规范已发布并通知各负责人<br>• Gap 分析完成，共发现 8 个 Skill 需更新<br>• 月底截止，当前 3/8 已更新</p></div><div class="detail-section"><h4>数据来源</h4><p>💬 Teams 消息 8 条 · 📋 ADO 工作项 5 个</p></div></div></div></div>`,
+yy:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon" style="background:#E88B30">YY</div><div class="chat-bubble"><b>Yana 的 AI 详细汇报</b> <span style="color:#E03E3E">⚠️ 有阻塞</span><br><br><div class="detail-section"><h4>🔴 阻塞项</h4><p>Sales DevBox 权限申请已提交 3 天，未获批准。影响 Sales onboarding 全流程，间接影响 Marketing demo。</p></div><div class="detail-section"><h4>进行中</h4><p>• 开源提案（Meeting Autopilot）已发给 Yuecong<br>• Sales 用户反馈收集中——"AI 记不住上下文"出现 4 次</p></div><div class="detail-section"><h4>数据来源</h4><p>💬 Teams 消息 15 条 · 📧 邮件 3 封</p></div></div></div></div>`,
+jl:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon" style="background:#E03E3E">JL</div><div class="chat-bubble"><b>Jian 的 AI 详细汇报</b><br><br><div class="detail-section"><h4>Gateway</h4><p>• 新版本上线 48 小时，零故障<br>• 日均请求量 12K，P99 延迟 180ms</p></div><div class="detail-section"><h4>DevBox 相关</h4><p>• 收到 Yana 的权限请求，已创建 ADO #120456<br>• 计划周三处理（需评估安全影响）<br>• 评估方案文档已更新至 v2</p></div><div class="detail-section"><h4>数据来源</h4><p>📋 ADO 工作项 4 个 · 💬 Teams 消息 6 条</p></div></div></div></div>`,
+dw:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon" style="background:#9B59B6">DW</div><div class="chat-bubble"><b>Danxia 的 AI 详细汇报</b><br><br><div class="detail-section"><h4>Marketing Onboarding</h4><p>• 本周 3 个会议：周二客户访谈、周三内部评审、周五 demo 预演<br>• Dynamic UI/Skills 设计第 3 轮迭代中</p></div><div class="detail-section"><h4>⚠️ 风险</h4><p>Marketing demo 依赖 Sales 数据。如果 DevBox 权限周三才解决，demo 预演可能需要用模拟数据。</p></div><div class="detail-section"><h4>数据来源</h4><p>📅 日历 5 个事件 · 💬 Teams 消息 9 条</p></div></div></div></div>`,
+jz:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon" style="background:#E91E8C">JZ</div><div class="chat-bubble"><b>Jing 的 AI 详细汇报</b><br><br><div class="detail-section"><h4>设计进展</h4><p>• Dynamic UI 模板：布局/配色/响应式适配优化中<br>• 已在 Figma 发出 16+ 条评论，等 Yuecong 确认方向<br>• 新的组件库已同步到 Storybook</p></div><div class="detail-section"><h4>数据来源</h4><p>🎨 Figma 通知 18 条</p></div></div></div></div>`,
+insight1:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon">C</div><div class="chat-bubble"><b>💡 关联分析：DevBox 权限连锁影响</b><br><br><div class="detail-section"><h4>影响链路</h4><p>1️⃣ <b>Yana</b> — Sales onboarding 被卡（第 3 天）<br>2️⃣ <b>Danxia</b> — Marketing demo 依赖 Sales 数据<br>3️⃣ <b>4/30 发布</b> — Marketing 场景可能无法演示</p></div><div class="detail-section"><h4>时间线分析</h4><p>• 周三处理 → 周四完成 → 只剩 6 天给 Sales+Marketing<br>• 明天处理 → 周三完成 → 还有 7 天，更安全<br>• Jian 已创建 ADO #120456，技术方案已就绪</p></div><div class="detail-section"><h4>建议</h4><p>让 Jian 提前到明天处理，为下游争取 1 天缓冲。</p></div></div></div></div>`,
+insight2:`<div class="chat-msg"><div class="chat-row"><div class="ai-icon">C</div><div class="chat-bubble"><b>💡 关联分析：多轮记忆不足</b><br><br><div class="detail-section"><h4>信号来源</h4><p>• <b>Shan 的评测</b>：多轮对话通过率 75%（低于单轮 95%）<br>• <b>Yana 的用户反馈</b>：Sales 用户 4 次反馈"AI 记不住上下文"</p></div><div class="detail-section"><h4>根因分析</h4><p>两个独立信号指向同一问题：上下文窗口管理不足。评测数据和真实用户反馈高度一致。</p></div><div class="detail-section"><h4>建议</h4><p>合并为一个 P0 改进项，分配给负责上下文管理的工程师。预计 2-3 天可出方案。</p></div></div></div></div>`
+};
+function showPanel(id){
+  const el=document.getElementById('rightContent');
+  el.classList.add('fade');
+  setTimeout(()=>{el.innerHTML=panels[id]||panels.welcome;el.classList.remove('fade')},150);
+}
+function decide(type,choice){
+  const el=document.getElementById('rightContent');
+  let msg='';
+  if(type==='devbox'){
+    msg=choice==='tomorrow'?'✅ 已通知 Jian 的 AI：DevBox 权限提前到明天处理。同时通知 Yana 和 Danxia 的 AI 更新计划。':'📌 保持周三处理。已通知 Yana 和 Danxia 的 AI 注意时间风险。';
+  }else{
+    msg=choice==='confirm'?'✅ 发布范围已确认！已通知所有成员的 AI 更新各自的里程碑。':'📝 请在对话中说明需要调整的内容，我会协调各成员的 AI 重新评估。';
+  }
+  el.classList.add('fade');
+  setTimeout(()=>{el.innerHTML=`<div class="chat-msg"><div class="chat-row"><div class="ai-icon">C</div><div class="chat-bubble">${msg}</div></div></div>`;el.classList.remove('fade')},150);
+}
+function handleInput(input){
+  const text=input.value.trim();if(!text)return;input.value='';
+  const el=document.getElementById('rightContent');
+  el.innerHTML+=`<div class="chat-msg"><div class="chat-row" style="justify-content:flex-end"><div class="chat-bubble" style="background:#2383E2;color:#fff;border-radius:12px 0 12px 12px">${text}</div></div></div>`;
+  setTimeout(()=>{el.innerHTML+=`<div class="chat-msg"><div class="chat-row"><div class="ai-icon">C</div><div class="chat-bubble">收到！让我查看团队 AI 的数据来回答你的问题…<br><br><i style="color:#9B9A97">（这是 DEMO 演示，实际版本中 AI 会基于真实数据回复）</i></div></div></div>`;el.scrollTop=el.scrollHeight},600);
+}
+// Init
+showPanel('welcome');
+// Avatar clicks
+document.querySelectorAll('.avatar').forEach(a=>{
+  const map={yc:'yc',sp:'sp',yy:'yy',jl:'jl',dw:'dw',jz:'jz'};
+  a.addEventListener('click',()=>showPanel(map[a.dataset.member]));
+});
+</script>
+</body>
+</html>

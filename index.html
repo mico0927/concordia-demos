@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concordia V8 — 团队 AI 工作系统</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-size: 15px; line-height: 1.85; color: #37352F; background: #FAFAF8;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff; padding: 64px 32px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; width: 300px; height: 300px;
+    background: rgba(35, 131, 226, 0.15); border-radius: 50%;
+    top: -100px; right: -50px;
+  }
+  .hero::after {
+    content: ''; position: absolute; width: 200px; height: 200px;
+    background: rgba(124, 58, 237, 0.1); border-radius: 50%;
+    bottom: -50px; left: -30px;
+  }
+  .hero-badge {
+    display: inline-block; font-size: 11px; letter-spacing: 0.15em;
+    padding: 4px 14px; border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px; margin-bottom: 20px; color: rgba(255,255,255,0.95);
+    position: relative; z-index: 1;
+  }
+  .hero h1 {
+    font-size: 42px; font-weight: 800; letter-spacing: -1px;
+    margin-bottom: 8px; position: relative; z-index: 1;
+  }
+  .hero-subtitle {
+    font-size: 20px; opacity: 1; font-weight: 300; color: rgba(255,255,255,0.95);
+    margin-bottom: 12px; position: relative; z-index: 1;
+  }
+  .hero-meta {
+    font-size: 13px; opacity: 1; color: rgba(255,255,255,0.7); margin-bottom: 24px;
+    position: relative; z-index: 1;
+  }
+  .hero-tags {
+    display: flex; gap: 8px; justify-content: center;
+    flex-wrap: wrap; position: relative; z-index: 1;
+  }
+  .hero-tags span {
+    font-size: 12px; padding: 5px 14px;
+    background: rgba(255,255,255,0.12); border-radius: 20px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* TOC */
+  .toc {
+    max-width: 760px; margin: 0 auto; padding: 32px 28px;
+    background: #fff; border-radius: 12px; margin-top: -24px;
+    position: relative; z-index: 1;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .toc summary {
+    font-size: 12px; font-weight: 600; color: #787774; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .toc ol { padding: 14px 0 0 20px; columns: 2; column-gap: 32px; }
+  .toc li { font-size: 13.5px; line-height: 2.1; break-inside: avoid; }
+  .toc a { color: #2383E2; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Content */
+  .content { max-width: 760px; margin: 0 auto; padding: 20px 28px 80px; }
+  h2 {
+    font-size: 24px; font-weight: 700; color: #37352F; margin: 56px 0 20px;
+    padding-bottom: 12px; border-bottom: 1px solid #E8E5E0;
+    letter-spacing: -0.3px; position: relative;
+  }
+  h2::before {
+    content: ''; position: absolute; bottom: -1px; left: 0;
+    width: 40px; height: 2px; background: #2383E2;
+  }
+  h3 { font-size: 18px; font-weight: 600; color: #37352F; margin: 40px 0 14px; }
+  h4 { font-size: 15px; font-weight: 600; color: #37352F; margin: 24px 0 8px; }
+  p { margin: 0 0 16px; color: #37352F; }
+  strong { font-weight: 600; color: #37352F; }
+  hr { border: none; border-top: 1px solid #E8E5E0; margin: 36px 0; }
+
+  /* Lists */
+  ul, ol { margin: 0 0 20px 20px; }
+  li { margin-bottom: 8px; color: #37352F; }
+
+  /* Blockquote */
+  blockquote {
+    border-left: 3px solid #2383E2; margin: 0 0 24px; padding: 16px 20px;
+    background: #F0F7FF; border-radius: 0 8px 8px 0;
+    font-size: 14px; color: #37352F; line-height: 1.7;
+  }
+  blockquote p { margin: 0; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; margin: 0 0 24px; }
+  table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    font-size: 13.5px; border-radius: 8px; overflow: hidden;
+    border: 1px solid #E8E5E0;
+  }
+  th {
+    background: #F7F6F3; font-weight: 600; color: #37352F;
+    padding: 12px 16px; text-align: left;
+    border-bottom: 1px solid #E8E5E0;
+    font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  td { padding: 11px 16px; border-bottom: 1px solid #F0EFEA; color: #37352F; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #FAFAF8; }
+
+  /* Code */
+  pre {
+    background: #F7F6F3; border: 1px solid #E8E5E0; border-radius: 8px;
+    padding: 18px 20px; overflow-x: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    font-size: 13px; line-height: 1.7; color: #37352F; margin: 0 0 20px;
+  }
+  pre code { background: none; padding: 0; color: #37352F; }
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    background: #F7F6F3; padding: 2px 6px; border-radius: 4px;
+    font-size: 13px; color: #EB5757;
+  }
+
+  /* Footer */
+  .footer {
+    max-width: 760px; margin: 0 auto; padding: 40px 28px;
+    text-align: center; color: #B4B4B0; font-size: 13px;
+  }
+  .footer-line { width: 40px; height: 2px; background: #E8E5E0; margin: 0 auto 20px; }
+  .footer-sub { font-size: 11px; margin-top: 4px; }
+
+  /* Print */
+  @media print {
+    .hero { background: #fff; color: #000; padding: 24px 0; }
+    .hero-tags, .toc { display: none; }
+    .content { padding: 0; }
+    h2::before { display: none; }
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    .hero { padding: 48px 20px; }
+    .hero h1 { font-size: 28px; }
+    .hero-subtitle { font-size: 16px; }
+    .content, .toc { padding-left: 16px; padding-right: 16px; }
+    .toc ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">PRODUCT DOCUMENT</div>
+  <h1>Concordia V8</h1>
+  <p class="hero-subtitle">团队 AI 工作系统</p>
+  <p class="hero-meta">2026-04-22 · Yuecong Yang + 洋葱头</p>
+  <div class="hero-tags">
+    <span>Proactive 引擎</span>
+    <span>多碳多硅</span>
+    <span>项目空间</span>
+    <span>角色自适应</span>
+  </div>
+</div>
+
+<nav class="toc">
+  <details open>
+    <summary>目录</summary>
+    <ol>
+      <li><a href="#s1">产品定位</a></li>
+      <li><a href="#s2">产品架构</a></li>
+      <li><a href="#s3">多碳多硅：从概念到落地</a></li>
+      <li><a href="#s4">项目空间设计</a></li>
+      <li><a href="#s5">工作流转</a></li>
+      <li><a href="#s6">AI 准确率与人的干预</a></li>
+      <li><a href="#s7">角色自适应</a></li>
+      <li><a href="#s8">右侧 AI 面板设计</a></li>
+      <li><a href="#s9">Proactive 引擎</a></li>
+      <li><a href="#s10">Old-New 故事</a></li>
+      <li><a href="#s11">DEMO</a></li>
+      <li><a href="#s12">路线图</a></li>
+    </ol>
+  </details>
+</nav>
+
+<main class="content">
+
+<blockquote>
+  <p><strong>版本</strong>: V8 | <strong>日期</strong>: 2026-04-22<br>
+  <strong>作者</strong>: Yuecong Yang + 洋葱头<br>
+  <strong>定位</strong>: Concordia 从"个人 AI 助手"升级为"团队 AI 工作系统"的完整产品设计</p>
+</blockquote>
+
+<hr>
+
+<h2 id="s1">一、产品定位</h2>
+
+<p><strong>一句话</strong>：Concordia 不是个人助手（那是 ClawPilot），是<strong>团队的 AI 工作系统</strong>。</p>
+
+<p><strong>核心价值</strong>：帮一个团队看清全局——不只是帮你处理邮件，而是让 AI 理解整个团队在做什么、谁被卡住了、哪些事情有关联，然后帮每个人做好准备。</p>
+
+<p><strong>与 ClawPilot 的区别</strong>：</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th></th><th>ClawPilot</th><th>Concordia</th></tr>
+  <tr><td><strong>服务对象</strong></td><td>一个人</td><td>一个团队</td></tr>
+  <tr><td><strong>AI 知道什么</strong></td><td>你的邮件、日历、Teams</td><td>团队每个人的进展和阻塞</td></tr>
+  <tr><td><strong>核心能力</strong></td><td>帮你做事</td><td>帮团队协作</td></tr>
+  <tr><td><strong>知识</strong></td><td>个人记忆</td><td>项目级共享知识</td></tr>
+  <tr><td><strong>Satya 背书</strong></td><td>✅</td><td>❌</td></tr>
+  <tr><td><strong>用户量</strong></td><td>1000+</td><td>团队试用</td></tr>
+  <tr><td><strong>Lobster 定位</strong></td><td>设备运行时</td><td>可作为能力提供者/Agent</td></tr>
+</table>
+</div>
+
+<p><strong>不是竞争关系，是互补</strong>：ClawPilot 做壳（个人交互），Concordia 做引擎（团队智能）。</p>
+
+<hr>
+
+<h2 id="s2">二、产品架构</h2>
+
+<h3>整体结构</h3>
+
+<pre><code>Concordia
+├── 🏠 首页
+│     我的待办（Proactive 引擎预处理）
+│     + 团队动态（谁需要我帮助）
+│     + 今日日程
+│     + 洞察（跨人关联发现）
+│
+├── 📂 工作台（项目空间）
+│     📋 概览（项目健康度 + 团队 AI 汇报）
+│     📄 知识（AI 编译的结构化知识）
+│     📎 文件（共享文档，从 SharePoint/OneDrive 自动收集）
+│     💬 讨论摘要（AI 从 Teams 自动整理）
+│     ✅ 团队任务（含流转状态）
+│     🧠 AI 工作区（索引、上下文）
+│
+├── 📅 会议
+│     日程列表 + AI 会前简报 + 参会者动态
+│
+└── 👥 招聘
+      候选人管理 + AI 匹配分析 + 面试进度</code></pre>
+
+<p><strong>右侧 AI 面板</strong>贯穿所有 Tab——点击任何内容，AI 展示对应的独立上下文和操作建议。</p>
+
+<h3>从 V7 到 V8 的变化</h3>
+
+<div class="table-wrap">
+<table>
+  <tr><th>维度</th><th>V7（个人）</th><th>V8（团队）</th></tr>
+  <tr><td>首页</td><td>只有我的待办</td><td>待办 + 团队动态自然融入</td></tr>
+  <tr><td>工作台</td><td>我的文件树</td><td>项目共享空间</td></tr>
+  <tr><td>文件</td><td>我上传的</td><td>团队所有人的贡献 + AI 产出</td></tr>
+  <tr><td>知识</td><td>AI 编译我的数据</td><td>AI 编译团队所有人的数据</td></tr>
+  <tr><td>新增</td><td>—</td><td>讨论摘要、团队任务、项目概览</td></tr>
+  <tr><td>AI 面板</td><td>帮我做事</td><td>帮我了解团队 + 做决策</td></tr>
+</table>
+</div>
+
+<p><strong>设计原则</strong>：不强行加"团队"功能——团队信息自然地出现在该出现的地方。用户感觉不到"我在用一个团队工具"，只是发现"咦，同事的进展自动出现在我的工作台了"。</p>
+
+<hr>
+
+<h2 id="s3">三、多碳多硅：从概念到落地</h2>
+
+<h3>什么是多碳多硅</h3>
+
+<p>Dawei 提出的"M碳+N硅"框架：M 个人（碳基）+ N 个 AI（硅基）组成协作单元。</p>
+
+<p><strong>但"多碳多硅"不是一个产品功能，是一种工作模式。</strong></p>
+
+<p>核心问题：<strong>为什么"每人配一个 AI"不够？</strong></p>
+
+<pre><code>每人一个 AI（ClawPilot 模式）：
+  洋葱的 AI 知道洋葱的邮件
+  Shan 的 AI 知道 Shan 的评测
+  Yana 的 AI 知道 Yana 的 onboarding
+  
+  但没有人知道：
+  → Shan 的评测数据能帮 Yana 解决 onboarding 问题
+  → Yana 的 DevBox 阻塞会影响 Danxia 的 Marketing demo
+  → Dawei 取消 CVP 周会这件事需要所有人知道
+  
+  每个 AI 都是一座孤岛。</code></pre>
+
+<p>多碳多硅要解决的是：<strong>让 AI 之间也产生协作，而不只是人和 AI 之间。</strong></p>
+
+<h3>三层递进</h3>
+
+<h4>第一层：AI 代表（AI Proxy）</h4>
+
+<p>每个人的 AI 不只帮自己，还能<strong>代表这个人</strong>向团队汇报。</p>
+
+<pre><code>传统：人 ←→ 人 ←→ 人（必须同时在线，必须开会）
+多碳多硅：人 → AI → 项目空间 ← AI ← 人（人不需要同时在线）</code></pre>
+
+<p>你下班了，但你的 AI 知道你今天做了什么。Dawei 晚上 11 点想看进度，不需要 @ 你，你的 AI 会回答。</p>
+
+<p><strong>用户感知</strong>：项目概览页里每个成员旁边有 <code>🤖 AI 更新 · 2h 前</code>——用户知道这不是人手动更新的，是 AI 在自动做。</p>
+
+<h4>第二层：AI 关联发现</h4>
+
+<p>当多个人的 AI 信息汇聚到项目空间，<strong>项目 AI 能发现人自己发现不了的关联</strong>。</p>
+
+<pre><code>Shan 的 AI：评测发现"多轮对话"通过率只有 75%
+Yana 的 AI：Sales 用户反馈"AI 记不住上下文"
+        ↓
+项目 AI 发现：这两个问题是同一个根因——多轮记忆能力不足</code></pre>
+
+<p><strong>人看到的是"两个独立的问题"，AI 看到的是"一个根因"。</strong></p>
+
+<p>另一个例子：</p>
+
+<pre><code>Yana 的 AI：Sales onboarding 被 DevBox 权限卡住
+Danxia 的 AI：Marketing demo 依赖 Sales 数据
+        ↓
+项目 AI 发现：DevBox 权限问题有连锁影响——不只影响 Yana，还影响 Danxia</code></pre>
+
+<h4>第三层：AI 自主协作</h4>
+
+<pre><code>Yana 的 AI：需要 DevBox 权限
+  → 自动检查：谁能解决？→ Jian 的 AI 有 DevBox 管理能力
+  → Yana 的 AI → Jian 的 AI："能帮开权限吗？"
+  → Jian 的 AI 检查日程："Jian 周三有空，已创建工作项"
+  → 通知 Jian："确认一下？"
+  → Jian："确认"
+  → 通知 Yana："权限问题 Jian 周三处理"
+
+全程两个人各说了一个字。AI 之间完成了协调。</code></pre>
+
+<h3>多碳多硅在 V8 中的落地形态</h3>
+
+<p><strong>不是一个独立的"多碳多硅"页面，而是自然地融入现有结构。</strong></p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>位置</th><th>体现</th><th>用户感知</th></tr>
+  <tr><td><strong>首页 · 团队动态</strong></td><td>3 条简短信号："谁需要你帮助"</td><td>"咦，Yana 被卡住了，我去帮她"</td></tr>
+  <tr><td><strong>首页 · 洞察</strong></td><td>跨人关联发现</td><td>"原来 DevBox 问题会影响两条线"</td></tr>
+  <tr><td><strong>工作台 · 概览</strong></td><td>每人一行状态 + 🤖 AI 更新标注</td><td>"不用问就知道大家在做什么"</td></tr>
+  <tr><td><strong>工作台 · 知识</strong></td><td>多人的 AI 共同编译的知识库</td><td>"Shan 的评测和 Aibo 的 PPT 自动关联了"</td></tr>
+  <tr><td><strong>工作台 · 讨论摘要</strong></td><td>AI 从 Teams 自动整理要点</td><td>"不用翻 200 条消息了"</td></tr>
+  <tr><td><strong>工作台 · 团队任务</strong></td><td>任务流转状态（Yana→Jian→Yana）</td><td>"任务自动流转，不用手动转交"</td></tr>
+</table>
+</div>
+
+<p><strong>用户不需要知道"多碳多硅"这个概念。</strong> 他们感知到的就是"我的工作台自动有了同事的信息"。</p>
+
+<hr>
+
+<h2 id="s4">四、项目空间设计</h2>
+
+<h3>从哪来</h3>
+
+<p>项目空间不是"创建"的，是<strong>"长出来"的</strong>。</p>
+
+<pre><code>实际发生的事：
+  Dawei 在 Teams 建了"一飞冲天"群
+  → 一群人讨论 Concordia
+  → 有人建了 SharePoint 文件夹
+  → 每天 9:30 daily sync
+  → ADO 上有 Board
+  
+  这些散落在 Teams/SharePoint/ADO/日历里，
+  没有人"组织"成一个项目——但事实上就是一个项目。</code></pre>
+
+<p><strong>Concordia 自动发现</strong>："你在参与一个叫 Concordia 的项目，要不要帮你整理一下？"</p>
+
+<p>也支持手动创建：点 [+ 新建项目空间]，选择关联的 Teams 群、SharePoint 文件夹、ADO Board，邀请成员。</p>
+
+<h3>每个人看到什么</h3>
+
+<p><strong>同一个项目空间，但每个人看到的视角不同。</strong></p>
+
+<pre><code>共享的（所有人看到一样）：
+  📋 概览（进度、阻塞、健康度）
+  📄 知识
+  📎 文件
+  💬 讨论摘要
+  🧠 AI 工作区
+
+个性化的（每个人不同）：
+  📋 我的待办 — 只看自己需要做的
+  👥 团队动态 — 只看和自己相关的信号
+  🔴 需要我决策 — 只有决策者看到</code></pre>
+
+<h3>别人怎么加入</h3>
+
+<p>被邀请的人收到通知 → 对方的 Concordia 首页自动出现这个项目 → 对方的 AI 开始采集相关信号 → 对方的 AI 汇报自动出现在项目概览里。</p>
+
+<p><strong>不需要每个人"安装"什么。</strong> 只要用 Concordia，被邀请后自动同步。</p>
+
+<hr>
+
+<h2 id="s5">五、工作流转</h2>
+
+<h3>不是传统工作流引擎</h3>
+
+<p><strong>不是用户手动"转交任务"，是 AI 根据上下文自动判断下一步该给谁。</strong></p>
+
+<pre><code>传统：Aibo 创建任务 → 分配给你 → 你完成 → 手动转给 Dawei → 审批
+Concordia：Aibo 在 Teams 说"Feature List 帮我纠正下"
+  → 你的 AI 自动识别为任务
+  → 你完成后，AI 发现"这个 PPT 要在 Dawei 的 dogfood 上用"
+  → AI："改完了要不要同步给 Dawei？"
+  → 你说"好"
+  → Dawei 看到："Yuecong 更新了 Feature List，请查看"</code></pre>
+
+<h3>流转状态展示</h3>
+
+<pre><code>DevBox 权限
+  Yana(发起) ●────● Jian(处理中) ○ Yana(验证)</code></pre>
+
+<h3>不是所有任务都需要流转</h3>
+
+<div class="table-wrap">
+<table>
+  <tr><th>需要流转</th><th>不需要流转</th></tr>
+  <tr><td>审批类（你做完 → 上级确认）</td><td>个人待办（回复邮件）</td></tr>
+  <tr><td>协作类（你做 A → 别人做 B）</td><td>信息知会（看完就行）</td></tr>
+  <tr><td>交付类（产出文档 → 分发）</td><td></td></tr>
+</table>
+</div>
+
+<p>AI 自动判断是否需要流转，不需要用户手动选。</p>
+
+<hr>
+
+<h2 id="s6">六、AI 准确率与人的干预</h2>
+
+<h3>AI 的三种错误</h3>
+
+<div class="table-wrap">
+<table>
+  <tr><th>错误类型</th><th>例子</th><th>解决方式</th></tr>
+  <tr><td><strong>漏了</strong></td><td>ClawPilot 讨论没被抓到</td><td>人可以手动添加 + 改过滤规则</td></tr>
+  <tr><td><strong>错了</strong></td><td>把"建议"理解成"决策"</td><td>每条汇报下有"纠正"按钮</td></tr>
+  <tr><td><strong>多了</strong></td><td>不相关的信号被收进来</td><td>人可以标记"不相关"，AI 学习</td></tr>
+</table>
+</div>
+
+<h3>人在项目空间里能做的事</h3>
+
+<pre><code>被动（AI 做，人看）：
+  · 看团队 AI 汇报
+  · 看 AI 发现的关联
+  · 看 AI 编译的知识
+
+主动（人做，AI 辅助）：
+  · 拍板决策（按钮确认）
+  · 纠正 AI（"这个分析不对"）
+  · 添加信息（"还有一件事 AI 没发现"）
+  · 调整优先级
+
+干预（人覆盖 AI）：
+  · 编辑 AI 的汇报
+  · 删除不相关的条目
+  · 手动关联两个事项
+  · 锁定某条知识（"AI 不要再改"）</code></pre>
+
+<p><strong>核心原则：AI 做 80%，人做 20%。但人的 20% 永远有最高权限。</strong></p>
+
+<hr>
+
+<h2 id="s7">七、角色自适应</h2>
+
+<div class="table-wrap">
+<table>
+  <tr><th></th><th>IC / Executor</th><th>Manager / Hybrid</th><th>GM+ / Leader</th></tr>
+  <tr><td><strong>看什么</strong></td><td>我今天要做什么</td><td>我的人在做什么</td><td>项目整体怎么样</td></tr>
+  <tr><td><strong>TODO 粒度</strong></td><td>一封邮件 = 一条</td><td>一个方向 = 一条</td><td>一个项目 = 一条</td></tr>
+  <tr><td><strong>预处理</strong></td><td>回复草稿、文档</td><td>进度摘要、风险</td><td>决策选项、数据</td></tr>
+  <tr><td><strong>团队维度</strong></td><td>谁需要我帮助</td><td>谁被卡住了</td><td>全局健康度</td></tr>
+  <tr><td><strong>时间视角</strong></td><td>今天/本周</td><td>本周/本月</td><td>本月/本季度</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s8">八、右侧 AI 面板设计</h2>
+
+<h3>核心交互</h3>
+
+<p><strong>每次点击左侧不同的内容，右侧完全切换为那个事项的独立对话。</strong></p>
+
+<p>不是消息累积，是上下文切换——每个事项有自己独立的对话空间。</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>点击什么</th><th>右侧显示什么</th></tr>
+  <tr><td>首页待办卡片</td><td>该事项的完整上下文 + AI 预处理内容 + 操作建议</td></tr>
+  <tr><td>工作台文件/知识</td><td>文件详情 + 来源溯源 + AI 分析</td></tr>
+  <tr><td>工作台团队任务</td><td>任务详情 + 流转状态 + AI 建议</td></tr>
+  <tr><td>会议</td><td>会议简报 + 参会者动态 + 关联任务</td></tr>
+  <tr><td>候选人</td><td>AI 匹配分析 + 面试记录</td></tr>
+</table>
+</div>
+
+<p>用户可以在当前上下文里继续对话（追加消息），但切换到另一个事项时，对话完全重置。</p>
+
+<hr>
+
+<h2 id="s9">九、Proactive 引擎（底层支撑）</h2>
+
+<p>整个产品的数据和智能由 Proactive 引擎驱动：</p>
+
+<pre><code>Layer 0: 感知（Pipeline 实时监听 Teams/邮件/日历）
+Layer 1: 理解（过滤 + 角色适配 + 关联）
+Layer 2: 准备（AI 预处理：草拟/简报/分析/起草）
+Layer 3: 呈现（首页看板 + 工作台 + 会议）
+Layer 4: 学习（用户行为 → 风格学习 → 自主权升级）</code></pre>
+
+<p>详见：《Concordia Proactive Engine 架构设计文档》</p>
+
+<hr>
+
+<h2 id="s10">十、Old-New 故事</h2>
+
+<h3>邮件</h3>
+
+<pre><code>Old: 打开 Outlook → 47 封未读 → 逐封处理 → 2 小时
+New: 打开 Concordia → "3 件事需要你处理" → AI 准备好了草稿 → 10 分钟</code></pre>
+
+<h3>会前准备</h3>
+
+<pre><code>Old: 日历提醒 → 翻邮件找议程 → 翻 Teams 找讨论 → 翻 SharePoint 找文档 → 会议开始了你还在翻
+New: 会前 30 分钟 Concordia 推简报 → 上次结论 + 今天要点 + 已知问题 → 带着去开会</code></pre>
+
+<h3>项目管理（Leader 视角）</h3>
+
+<pre><code>Old: 问 Aibo 进度 → Aibo 问每个人 → 汇总 PPT → 一天过去了
+New: 打开概览 → 65% 进度 + 1 个阻塞 + 每人一行状态 → 10 秒看完全局</code></pre>
+
+<h3>团队协作（多碳多硅）</h3>
+
+<pre><code>Old: 开会才知道别人在做什么 → 发现问题已经卡了 3 天 → 补救
+New: AI 自动发现 Yana 被卡住 → 自动通知 Jian 协调 → 你只需确认</code></pre>
+
+<hr>
+
+<h2 id="s11">十一、DEMO</h2>
+
+<h3>当前可体验</h3>
+
+<ul>
+  <li><strong>V8 DEMO</strong>: <code>prototypes/concordia_v8_team.html</code>（完整 4 Tab + 团队工作台 + 多碳多硅）</li>
+  <li><strong>多碳多硅独立 DEMO</strong>: <code>prototypes/concordia_multicarbonsilicon.html</code>（项目空间 + AI 汇报）</li>
+  <li><strong>V7 DEMO</strong>: <code>prototypes/concordia_v7_notion.html</code>（个人版基线）</li>
+  <li><strong>Proactive 看板</strong>: <code>outputs/_review.html</code>（真实数据 + Pipeline 驱动）</li>
+</ul>
+
+<h3>DEMO 和真实产品的差距</h3>
+
+<div class="table-wrap">
+<table>
+  <tr><th></th><th>DEMO</th><th>真实产品需要</th></tr>
+  <tr><td>数据</td><td>模拟数据（但基于真实场景）</td><td>实时从 M365 采集</td></tr>
+  <tr><td>AI 面板</td><td>模拟回复</td><td>连接 LLM 实时对话</td></tr>
+  <tr><td>多人协作</td><td>单用户模拟</td><td>多用户 + 权限管理</td></tr>
+  <tr><td>部署</td><td>本地 HTML 文件</td><td>Azure Web App</td></tr>
+  <tr><td>认证</td><td>无</td><td>MSAL / Entra ID</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2 id="s12">十二、路线图</h2>
+
+<h3>Phase 1：个人 Proactive（当前 → 4/30）</h3>
+<ul>
+  <li>✅ Proactive 引擎原型</li>
+  <li>✅ Review Dashboard</li>
+  <li>✅ Pipeline 实时监听</li>
+  <li>⏳ 看板样式完善</li>
+  <li>⏳ 4/30 Qi Review（Old-New 故事 + Proactive Demo）</li>
+</ul>
+
+<h3>Phase 2：项目空间（5 月）</h3>
+<ul>
+  <li>工作台从个人升级为项目级</li>
+  <li>AI 编译共享知识</li>
+  <li>讨论摘要自动生成</li>
+  <li>团队任务 + 流转状态</li>
+</ul>
+
+<h3>Phase 3：多碳多硅（6 月）</h3>
+<ul>
+  <li>团队 AI 汇报（每个成员的 AI 自动贡献）</li>
+  <li>AI 关联发现（跨人信号关联）</li>
+  <li>项目健康度自动计算</li>
+</ul>
+
+<h3>Phase 4：融入 Lobster 生态（Q3）</h3>
+<ul>
+  <li>注册为 Lobster Agent</li>
+  <li>和 ClawPilot 协作</li>
+  <li>Skill Marketplace 上架</li>
+</ul>
+
+<hr>
+
+<p><em>本文档是 Concordia V8 的完整产品设计，所有相关开发和 Demo 都应遵循本文档的设计原则和架构。</em></p>
+
+</main>
+
+<div class="footer">
+  <div class="footer-line"></div>
+  <p>Concordia V8 · 团队 AI 工作系统</p>
+  <p class="footer-sub">本文档由 Concordia AI 辅助生成 · 内部使用</p>
+</div>
+
+</body>
+</html>

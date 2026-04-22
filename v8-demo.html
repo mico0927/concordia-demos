@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Concordia V8 Team</title>
+<style>
+:root{--bg:#FFFFFF;--sidebar:#FAFBFA;--border:#E8E5E0;--blue:#2383E2;--red:#E03E3E;--orange:#D9730D;--green:#0F7B6C;--purple:#7C3AED;--text1:#37352F;--text2:#787774;--text3:#B4B4B0;--card:#FFFFFF;--hover:#F7F7F5;--font:-apple-system,'Inter','Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);color:var(--text1);background:var(--bg);height:100vh;overflow:hidden;display:flex}
+/* Nav */
+.nav{width:60px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:8px;flex-shrink:0}
+.nav-item{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:background .15s}
+.nav-item:hover,.nav-item.active{background:var(--hover);color:var(--text1)}
+.nav-item.active{background:#E8F0FE;color:var(--blue)}
+.nav-item svg{width:20px;height:20px}
+.nav-spacer{flex:1}
+/* Main */
+.main{flex:1;overflow-y:auto;padding:32px 40px}
+.view{display:none}
+.view.active{display:block}
+/* AI Panel */
+.ai-panel{width:340px;border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;background:var(--bg)}
+.ai-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ai-header h3{font-size:15px;font-weight:600}
+.ai-status{font-size:12px;color:var(--green);display:flex;align-items:center;gap:5px}
+.ai-status .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.ai-messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.ai-msg .sender{font-size:11px;color:var(--text2);margin-bottom:4px}
+.ai-msg .bubble{background:var(--sidebar);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6}
+.ai-msg.user .bubble{background:#E8F0FE;border-color:#D0E1F9}
+.ai-input-wrap{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.ai-input{flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;outline:none;font-family:var(--font)}
+.ai-input:focus{border-color:var(--blue)}
+.ai-send{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+/* Common */
+.greeting{font-size:28px;font-weight:700;margin-bottom:2px}
+.greeting-date{font-size:14px;color:var(--text2);margin-bottom:28px}
+.section-title{font-size:13px;font-weight:600;color:var(--text2);margin:24px 0 12px;text-transform:uppercase;letter-spacing:.3px}
+.card{border:1px solid var(--border);border-radius:10px;border-left:4px solid var(--border);cursor:pointer;transition:background .15s;margin-bottom:10px}
+.card:hover{background:var(--hover)}
+.card-urgent{border-left-color:var(--red)}
+.card-warn{border-left-color:var(--orange)}
+.card-body{padding:14px 16px}
+.card-meta{font-size:11px;color:var(--text2);margin-bottom:4px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:4px}
+.card-desc{font-size:12.5px;color:var(--text2);margin-bottom:10px}
+.card-actions{display:flex;gap:8px}
+.btn{padding:5px 14px;border-radius:8px;font-size:12px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-family:var(--font);transition:background .15s}
+.btn:hover{background:var(--hover)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{background:#1B6EC2}
+.team-signal{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:12.5px;color:var(--text2)}
+.signal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.signal-warn{background:var(--orange)}
+.signal-ok{background:var(--green)}
+.signal-info{background:var(--blue)}
+.insight-bar{background:#FFFDF5;border:1px solid #F5E6B8;border-radius:10px;padding:14px 16px;margin-bottom:8px}
+.insight-title{font-size:13px;font-weight:600;color:var(--orange);margin-bottom:6px}
+.insight-item{font-size:12.5px;color:var(--text2);line-height:1.6}
+.schedule-item{display:flex;align-items:center;gap:12px;padding:6px 0;font-size:13px}
+.schedule-time{color:var(--text2);font-variant-numeric:tabular-nums;width:44px;flex-shrink:0}
+/* Workspace */
+.ws-layout{display:flex;height:calc(100vh - 64px)}
+.file-tree{width:280px;border-right:1px solid var(--border);overflow-y:auto;padding:12px 0;flex-shrink:0}
+.ws-content{flex:1;overflow-y:auto;padding:28px 32px}
+.tree-root-label{font-size:13px;font-weight:600;padding:8px 16px;display:flex;align-items:center;gap:6px}
+.tree-root-meta{font-size:11px;color:var(--text3);margin-left:auto}
+.tree-section{padding:0}
+.tree-section-header{font-size:12px;font-weight:600;color:var(--text2);padding:6px 16px 4px 16px;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none}
+.tree-section-header:hover{background:var(--hover)}
+.tree-arrow{font-size:10px;color:var(--text3);width:14px;text-align:center;transition:transform .15s}
+.tree-arrow.open{transform:rotate(90deg)}
+.tree-children{overflow:hidden}
+.tree-children.collapsed{display:none}
+.tree-leaf{font-size:12.5px;padding:4px 16px 4px 36px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tree-leaf:hover{background:var(--hover)}
+.tree-leaf.active{background:#E8F0FE;color:var(--blue)}
+.tree-leaf-tag{font-size:10px;color:var(--text3);margin-left:auto;flex-shrink:0}
+.tree-create{padding:12px 16px;font-size:12.5px;color:var(--blue);cursor:pointer;border-top:1px solid var(--border);margin-top:8px}
+.tree-create:hover{background:var(--hover)}
+/* Meeting */
+.meet-layout{display:flex;height:calc(100vh - 64px)}
+.meet-list{width:280px;border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;flex-shrink:0}
+.meet-content{flex:1;overflow-y:auto;padding:28px 32px}
+.meet-day{font-size:12px;font-weight:600;color:var(--text2);padding:4px 16px;margin-top:12px}
+.meet-item{font-size:13px;padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.meet-item:hover{background:var(--hover)}
+.meet-item.active{background:#E8F0FE;color:var(--blue)}
+.meet-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* Recruit */
+.rec-layout{display:flex;height:calc(100vh - 64px)}
+.rec-list{width:280px;border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;flex-shrink:0}
+.rec-content{flex:1;overflow-y:auto;padding:28px 32px}
+.rec-item{font-size:13px;padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--border)}
+.rec-item:hover{background:var(--hover)}
+.rec-item.active{background:#E8F0FE}
+.rec-name{font-weight:600}
+.rec-meta{font-size:11px;color:var(--text2);margin-top:2px}
+/* Meeting V2 */
+.meeting-layout{display:flex;height:100%}
+.meeting-sidebar{width:280px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.meeting-content{flex:1;overflow-y:auto;padding:24px 28px}
+.meeting-inner{max-width:900px}
+.meeting-day-title{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px}
+.meeting-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;margin-bottom:4px;transition:background .15s}
+.meeting-item:hover,.meeting-item.active{background:var(--hover)}
+.meeting-time{font-size:12px;color:var(--text3);width:45px;flex-shrink:0;padding-top:1px}
+.meeting-info{flex:1;min-width:0}
+.meeting-name{font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meeting-sub{font-size:11px;color:var(--text3)}
+.meeting-ready{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+/* Hire V2 */
+.hire-layout{display:flex;height:100%}
+.hire-sidebar{width:280px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0}
+.hire-content{flex:1;overflow-y:auto}
+.hire-item{padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;transition:background .15s}
+.hire-item:hover,.hire-item.active{background:var(--hover)}
+/* Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;display:none}
+.modal-overlay.show{display:flex}
+.modal-content{background:#fff;border-radius:12px;position:relative}
+.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)}
+/* Progress steps */
+.progress-steps{display:flex;align-items:center;gap:4px;font-size:12px;margin:12px 0}
+.progress-steps span{padding:2px 0}
+/* Team avatar row */
+.team-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+.avatar{width:28px;height:28px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+/* Source trace */
+.source-trace{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.source-toggle{font-size:12px;color:var(--blue);cursor:pointer;margin-bottom:8px}
+.source-list{font-size:12px;color:var(--text2);line-height:2}
+/* Timeline */
+.timeline-item{display:flex;gap:10px;font-size:12.5px;padding:4px 0;color:var(--text2)}
+.timeline-date{width:36px;flex-shrink:0;font-weight:600;color:var(--text1)}
+/* Compare table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.cmp-table th,.cmp-table td{border:1px solid var(--border);padding:8px 12px;text-align:left}
+.cmp-table th{background:var(--sidebar);font-weight:600}
+</style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="nav">
+<div class="nav-item active" data-tab="home" onclick="switchTab('home')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+</div>
+<div class="nav-item" data-tab="workspace" onclick="switchTab('workspace')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+</div>
+<div class="nav-item" data-tab="meeting" onclick="switchTab('meeting')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+</div>
+<div class="nav-item" data-tab="recruit" onclick="switchTab('recruit')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+</div>
+<div class="nav-spacer"></div>
+<div class="nav-item" onclick="handleActionClick('设置页面即将上线')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+</div>
+</nav>
+
+<!-- Tab 1: Home -->
+<div class="main" id="main-scroll">
+<div class="view active" id="view-home">
+<div class="greeting">晚上好，洋葱</div>
+<div class="greeting-date">4月22日 星期二</div>
+
+<div class="section-title">我的待办</div>
+<div class="card card-urgent" onclick="showCardContext(0)">
+<div class="card-body">
+<div class="card-meta">💬 Aibo Liu · 4/19</div>
+<div class="card-title">纠正 Feature List 并贴截图</div>
+<div class="card-desc">已帮你梳理了 6 项 Feature 修改建议，请你确认</div>
+<div class="card-actions"><button class="btn btn-primary" onclick="event.stopPropagation();handleActionClick('正在打开 Feature List PPT 并标注修改建议...')">修改 PPT</button></div>
+</div>
+</div>
+<div class="card card-urgent" onclick="showCardContext(1)">
+<div class="card-body">
+<div class="card-meta">💬 Aibo · dogfood 线程 · 4/21</div>
+<div class="card-title">ClawPilot 竞品讨论 — Aibo 已做对比 PPT</div>
+<div class="card-desc">已帮你整理了 ClawPilot 文档分析和定位建议</div>
+<div class="card-actions"><button class="btn btn-primary" onclick="event.stopPropagation();handleActionClick('正在加载 ClawPilot 竞品分析...')">查看分析</button></div>
+</div>
+</div>
+<div class="card card-warn" onclick="showCardContext(2)">
+<div class="card-body">
+<div class="card-meta">💬 Ruoqing Tang · 4/17</div>
+<div class="card-title">回复 O+4.0 Design 反馈</div>
+<div class="card-desc">你答应了但拖了 4 天，已帮你整理了设计稿变更</div>
+<div class="card-actions"><button class="btn btn-primary" onclick="event.stopPropagation();handleActionClick('已帮你打开 Ruoqing 的 Design 反馈帖，草稿已准备好')">去回复</button></div>
+</div>
+</div>
+
+<div class="section-title">团队动态</div>
+<div class="team-signal">
+<span class="signal-dot signal-warn"></span>
+<span>Yana 的 Sales onboarding 被 DevBox 权限卡住（第 3 天），影响 Danxia 的 Marketing demo</span>
+<button class="btn btn-primary" style="margin-left:auto;flex-shrink:0" onclick="handleActionClick('已通知 Jian 提前处理 DevBox 权限，同时 CC 了 Yana 和 Danxia')">帮 Yana 协调</button>
+</div>
+<div class="team-signal">
+<span class="signal-dot signal-ok"></span>
+<span>Shan 的评测通过率升到 87%（↑12%），Skill 标准化规范已发布，月底截止</span>
+</div>
+<div class="team-signal">
+<span class="signal-dot signal-info"></span>
+<span>Danxia 本周 3 个 Marketing 会议，方向在加速推进</span>
+</div>
+
+<div class="section-title">今日日程</div>
+<div class="schedule-item"><span class="schedule-time">09:30</span><span>Concordia daily sync · Dawei Gu</span></div>
+<div class="schedule-item"><span class="schedule-time">13:30</span><span>Concordia 430 Dogfood · Dawei Gu</span></div>
+<div class="schedule-item"><span class="schedule-time">15:00</span><span>Proactive 能力对齐 · 你发起</span></div>
+
+<div class="section-title" style="margin-top:28px">洋葱头洞察</div>
+<div class="insight-bar">
+<div class="insight-item">DevBox 权限问题如果本周不解决，会同时影响 Yana 的 Sales onboarding 和 Danxia 的 Marketing demo——这是 4/30 发布的两条关键路径。建议让 Jian 提前处理。</div>
+</div>
+</div>
+
+<!-- Tab 2: Workspace -->
+<div class="view" id="view-workspace">
+<div style="padding:16px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="width:28px;height:28px;border-radius:6px;background:#2383E2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700">C</div>
+    <div>
+      <div style="font-size:15px;font-weight:600">Concordia 0.3 · 项目空间</div>
+      <div style="font-size:11px;color:#787774">4/30 发布 · 6 位成员 · 🤖 5 AI 活跃</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:-8px">
+    <div style="width:28px;height:28px;border-radius:50%;background:#2383E2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:2px solid #fff">YC</div>
+    <div style="width:28px;height:28px;border-radius:50%;background:#0F7B6C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:2px solid #fff;margin-left:-8px">SP</div>
+    <div style="width:28px;height:28px;border-radius:50%;background:#D9730D;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:2px solid #fff;margin-left:-8px">YY</div>
+    <div style="width:28px;height:28px;border-radius:50%;background:#E03E3E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:2px solid #fff;margin-left:-8px">JL</div>
+    <div style="width:28px;height:28px;border-radius:50%;background:#7C3AED;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:2px solid #fff;margin-left:-8px">DW</div>
+    <div style="width:28px;height:28px;border-radius:50%;background:#E78BB0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;border:2px solid #fff;margin-left:-8px">JZ</div>
+  </div>
+</div>
+<div class="ws-layout">
+<div class="file-tree" id="file-tree">
+<div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="width:24px;height:24px;border-radius:6px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">C</div>
+    <span style="font-size:14px;font-weight:600">Concordia 0.3</span>
+  </div>
+  <div style="font-size:11px;color:var(--text2);margin-top:2px;margin-left:32px">项目空间 · 6 位成员 · 🤖 5 AI 活跃</div>
+</div>
+
+<div class="tree-leaf active" data-ws="overview" onclick="selectTreeItem(this,'overview')">📋 概览</div>
+
+<div class="tree-section">
+<div class="tree-section-header" onclick="toggleSection(this)"><span class="tree-arrow open">▶</span>📄 知识（AI 编译）</div>
+<div class="tree-children">
+<div class="tree-leaf" data-ws="k-positioning" onclick="selectTreeItem(this,'k-positioning')">📄 定位方案汇总<span class="tree-leaf-tag">🟣 AI · 4/1</span></div>
+<div class="tree-leaf" data-ws="k-compete" onclick="selectTreeItem(this,'k-compete')">📄 竞品分析（含 ClawPilot）<span class="tree-leaf-tag">🟢 讨论 · 4/21</span></div>
+<div class="tree-leaf" data-ws="k-4mode" onclick="selectTreeItem(this,'k-4mode')">📄 第四模式核心概念<span class="tree-leaf-tag">🟢 论文 · 4/6</span></div>
+<div class="tree-leaf" data-ws="k-karpathy" onclick="selectTreeItem(this,'k-karpathy')">📄 Karpathy Wiki方案<span class="tree-leaf-tag">🟢 推文 · 4/7</span></div>
+<div class="tree-leaf" data-ws="k-eval" onclick="selectTreeItem(this,'k-eval')">📄 评测报告<span class="tree-leaf-tag">🟣 AI · 4/15</span></div>
+<div class="tree-leaf" data-ws="k-feedback" onclick="selectTreeItem(this,'k-feedback')">📄 使用反馈汇总<span class="tree-leaf-tag">🟢 反馈 · 4/7</span></div>
+</div>
+</div>
+
+<div class="tree-section">
+<div class="tree-section-header" onclick="toggleSection(this)"><span class="tree-arrow open">▶</span>📎 文件</div>
+<div class="tree-children">
+<div class="tree-leaf" data-ws="f-sprint" onclick="selectTreeItem(this,'f-sprint')">📊 冲刺表.xlsx<span class="tree-leaf-tag">Yuecong · 3/31</span></div>
+<div class="tree-leaf" data-ws="f-ppt" onclick="selectTreeItem(this,'f-ppt')">📕 定位PPT.pptx<span class="tree-leaf-tag">Yuecong · 3/31</span></div>
+<div class="tree-leaf" data-ws="f-clawppt" onclick="selectTreeItem(this,'f-clawppt')">📕 ClawPilot对比.pptx<span class="tree-leaf-tag">Aibo · 4/21</span></div>
+<div class="tree-leaf" data-ws="f-proactive" onclick="selectTreeItem(this,'f-proactive')">📄 Proactive架构.md<span class="tree-leaf-tag">Yuecong · 4/20</span></div>
+</div>
+</div>
+
+<div class="tree-section">
+<div class="tree-section-header" onclick="toggleSection(this)"><span class="tree-arrow open">▶</span>📎 AI 产出</div>
+<div class="tree-children">
+<div class="tree-leaf" data-ws="ai-4mode" onclick="selectTreeItem(this,'ai-4mode')">📄 The_Fourth_Mode_CN.pdf<span class="tree-leaf-tag">🔵 AI 翻译</span></div>
+<div class="tree-leaf" data-ws="ai-briefing" onclick="selectTreeItem(this,'ai-briefing')">⚙️ meeting-briefing.skill<span class="tree-leaf-tag">🟣 AI 产出</span></div>
+</div>
+</div>
+
+<div class="tree-section">
+<div class="tree-section-header" onclick="toggleSection(this)"><span class="tree-arrow open">▶</span>💬 讨论摘要</div>
+<div class="tree-children">
+<div class="tree-leaf" data-ws="d-weekly" onclick="selectTreeItem(this,'d-weekly')">💬 本周讨论要点<span class="tree-leaf-tag">自动更新</span></div>
+<div class="tree-leaf" data-ws="d-decisions" onclick="selectTreeItem(this,'d-decisions')">💬 关键决策记录<span class="tree-leaf-tag">AI 整理</span></div>
+</div>
+</div>
+
+<div class="tree-section">
+<div class="tree-section-header" onclick="toggleSection(this)"><span class="tree-arrow open">▶</span>✅ 团队任务</div>
+<div class="tree-children">
+<div class="tree-leaf" data-ws="t-devbox" onclick="selectTreeItem(this,'t-devbox')">🔴 DevBox 权限<span class="tree-leaf-tag">Jian · 阻塞</span></div>
+<div class="tree-leaf" data-ws="t-feature" onclick="selectTreeItem(this,'t-feature')">🟡 Feature List<span class="tree-leaf-tag">Yuecong · 进行中</span></div>
+<div class="tree-leaf" data-ws="t-skill" onclick="selectTreeItem(this,'t-skill')">🟡 Skill 标准化<span class="tree-leaf-tag">Shan · 月底</span></div>
+<div class="tree-leaf" data-ws="t-eval" onclick="selectTreeItem(this,'t-eval')">🟢 评测 87%<span class="tree-leaf-tag">Shan · 完成</span></div>
+</div>
+</div>
+
+<div class="tree-section">
+<div class="tree-section-header" onclick="toggleSection(this)"><span class="tree-arrow">▶</span><span style="color:var(--text3)">🧠 AI 工作区</span></div>
+<div class="tree-children collapsed">
+<div class="tree-leaf" data-ws="ai-index" onclick="selectTreeItem(this,'ai-index')"><span style="color:var(--text3)">🧠 _index.md</span></div>
+<div class="tree-leaf" data-ws="ai-ctx" onclick="selectTreeItem(this,'ai-ctx')"><span style="color:var(--text3)">🧠 _context_snapshot.md</span></div>
+</div>
+</div>
+
+<div class="tree-create" onclick="showCreateSpace()">+ 新建项目空间</div>
+</div>
+<div class="ws-content" id="ws-content">
+<div style="padding:12px 0 16px;border-bottom:1px solid var(--border);margin-bottom:20px;font-size:13px;color:var(--text2)">
+  <span style="color:var(--blue);cursor:pointer" onclick="selectTreeItem(document.querySelector('[data-ws=overview]'),'overview')">Concordia 0.3</span> <span style="color:var(--text3)">/</span> <span id="ws-breadcrumb">概览</span>
+</div>
+<div id="ws-inner"></div>
+</div>
+</div>
+</div>
+
+<!-- Tab 3: Meeting -->
+<div class="view" id="view-meeting">
+<div class="meeting-layout">
+  <div class="meeting-sidebar">
+    <div style="padding:16px;font-size:14px;font-weight:600;border-bottom:1px solid var(--border)">📅 我的日程</div>
+    <div style="padding:12px 16px">
+      <div class="meeting-day-title">今天 · 4月22日</div>
+      <div class="meeting-item active" onclick="showMeeting('sync')">
+        <div class="meeting-time">09:30</div>
+        <div class="meeting-info"><div class="meeting-name">Concordia daily sync</div><div class="meeting-sub">Dawei Gu · BJW-1/5.1A</div></div>
+        <div class="meeting-ready" style="background:var(--green)"></div>
+      </div>
+      <div class="meeting-item" onclick="showMeeting('dogfood')">
+        <div class="meeting-time">13:30</div>
+        <div class="meeting-info"><div class="meeting-name">Concordia 430 Dogfood</div><div class="meeting-sub">Dawei Gu · BJW 4.2C + Teams</div></div>
+        <div class="meeting-ready" style="background:var(--orange)"></div>
+      </div>
+      <div class="meeting-item" onclick="showMeeting('proactive')">
+        <div class="meeting-time">15:00</div>
+        <div class="meeting-info"><div class="meeting-name">Proactive 能力对齐</div><div class="meeting-sub">你发起 · Yana, Yimeng</div></div>
+        <div class="meeting-ready" style="background:var(--green)"></div>
+      </div>
+      <div class="meeting-day-title" style="margin-top:20px">明天 · 4月23日</div>
+      <div class="meeting-item" onclick="showMeeting('sync2')">
+        <div class="meeting-time">09:30</div>
+        <div class="meeting-info"><div class="meeting-name">Concordia daily sync</div><div class="meeting-sub">Dawei Gu</div></div>
+        <div class="meeting-ready" style="background:var(--text3)"></div>
+      </div>
+      <div class="meeting-item" onclick="showMeeting('allhands')">
+        <div class="meeting-time">14:00</div>
+        <div class="meeting-info"><div class="meeting-name">MMAIS All Hands</div><div class="meeting-sub">Dawei Gu · 北京+成都混合</div></div>
+        <div class="meeting-ready" style="background:var(--text3)"></div>
+      </div>
+      <div class="meeting-item" onclick="showMeeting('culture')">
+        <div class="meeting-time">10:00</div>
+        <div class="meeting-info"><div class="meeting-name">GCR Culture Conference</div><div class="meeting-sub">全天活动 · 多 session</div></div>
+        <div class="meeting-ready" style="background:var(--text3)"></div>
+      </div>
+    </div>
+  </div>
+  <div class="meeting-content">
+    <div class="meeting-inner" id="meeting-detail"></div>
+  </div>
+</div>
+</div>
+
+<!-- Tab 4: Recruit -->
+<div class="view" id="view-recruit">
+<div class="hire-layout">
+  <div class="hire-sidebar">
+    <div style="padding:16px;font-size:14px;font-weight:600;border-bottom:1px solid var(--border)">👥 校招 2026</div>
+    <div style="padding:12px">
+      <div class="hire-item active" onclick="showCandidate('zhangxm')">
+        <div><div style="font-weight:500;font-size:13px">张小明</div><div style="font-size:11px;color:var(--text3)">北京大学 · 计算机科学</div></div>
+        <span style="font-size:13px;font-weight:600;color:var(--green)">92%</span>
+      </div>
+      <div class="hire-item" onclick="showCandidate('lixh')">
+        <div><div style="font-weight:500;font-size:13px">李小红</div><div style="font-size:11px;color:var(--text3)">清华大学 · 人工智能</div></div>
+        <span style="font-size:13px;font-weight:600;color:var(--green)">88%</span>
+      </div>
+      <div class="hire-item" onclick="showCandidate('wangxg')">
+        <div><div style="font-weight:500;font-size:13px">王小刚</div><div style="font-size:11px;color:var(--text3)">浙江大学 · 软件工程</div></div>
+        <span style="font-size:13px;font-weight:600;color:var(--green)">85%</span>
+      </div>
+    </div>
+  </div>
+  <div class="hire-content" id="candidate-detail"></div>
+</div>
+</div>
+</div>
+
+<!-- AI Panel -->
+<div class="ai-panel">
+<div class="ai-header"><h3>洋葱头</h3><span class="ai-status"><span class="dot"></span> 在线</span></div>
+<div class="ai-messages" id="ai-messages">
+<div class="ai-msg"><div class="sender">洋葱头</div><div class="bubble">晚上好！今天有 3 件事需要你处理。<br><br>⚠️ 注意：Yana 的 DevBox 权限问题已经卡了 3 天，如果本周不解决会影响 Marketing demo。<br><br>另外 Aibo 分享了 ClawPilot 对比 PPT，建议你在 dogfood 前看一下。</div></div>
+</div>
+<div class="ai-input-wrap">
+<input class="ai-input" id="ai-input" placeholder="跟洋葱头说..." onkeydown="if(event.key==='Enter')handleChat()">
+<button class="ai-send" onclick="handleChat()">↑</button>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+<div class="modal-content" style="width:500px;padding:32px">
+<button class="modal-close" onclick="closeModal()">×</button>
+<h2 style="font-size:18px;margin-bottom:20px">新建项目空间</h2>
+<label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">项目名称</label>
+<input type="text" placeholder="例如：Concordia 0.4" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:13px;font-family:var(--font)">
+<label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">关联信息源</label>
+<div style="margin-bottom:16px">
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;cursor:pointer"><input type="checkbox" checked> 💬 Teams 群：一飞冲天</label>
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;cursor:pointer"><input type="checkbox" checked> 📁 SharePoint：Concordia 文件夹</label>
+<label style="display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;cursor:pointer"><input type="checkbox"> 🔧 ADO Board：Concordia</label>
+</div>
+<label style="font-size:13px;color:var(--text2);display:block;margin-bottom:4px">邀请成员</label>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">
+<span style="background:#E8F0FE;color:var(--blue);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer" onclick="this.remove()">Shan Peng ×</span>
+<span style="background:#E8F0FE;color:var(--blue);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer" onclick="this.remove()">Yana Yuan ×</span>
+<span style="background:#E8F0FE;color:var(--blue);padding:4px 10px;border-radius:12px;font-size:12px;cursor:pointer" onclick="this.remove()">Jian Liu ×</span>
+<input type="text" placeholder="搜索成员..." style="border:none;outline:none;font-size:12px;flex:1;min-width:100px;font-family:var(--font)">
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end">
+<button class="btn" onclick="closeModal()">取消</button>
+<button class="btn btn-primary" onclick="closeModal();handleActionClick('项目空间已创建！AI 将开始从关联信息源采集数据。')">创建</button>
+</div>
+</div>
+</div>
+
+<script>
+// Tab switching
+function switchTab(tab){
+document.querySelectorAll('.nav-item').forEach(n=>{n.classList.toggle('active',n.dataset.tab===tab)});
+document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+document.getElementById('view-'+tab).classList.add('active');
+if(tab==='workspace') renderWsContent('overview');
+if(tab==='meeting') showMeeting('sync');
+if(tab==='recruit') showCandidate('zhangxm');
+}
+
+// AI panel
+function setAiContext(text){
+var d=document.getElementById('ai-messages');
+d.innerHTML='<div class="ai-msg"><div class="sender">洋葱头</div><div class="bubble">'+text+'</div></div>';
+d.scrollTop=d.scrollHeight;
+}
+function addAiMsg(text,isUser){
+var d=document.getElementById('ai-messages');
+var m=document.createElement('div');
+m.className='ai-msg'+(isUser?' user':'');
+m.innerHTML='<div class="sender">'+(isUser?'你':'洋葱头')+'</div><div class="bubble">'+text+'</div>';
+d.appendChild(m);
+d.scrollTop=d.scrollHeight;
+}
+function handleActionClick(msg){addAiMsg(msg,false)}
+function handleChat(){
+var inp=document.getElementById('ai-input');
+var t=inp.value.trim();if(!t)return;
+addAiMsg(t,true);inp.value='';
+setTimeout(function(){addAiMsg('收到，让我看看...<br><br>我正在处理你的请求，稍后会给你结果。',false)},500);
+}
+function showCardContext(i){
+var ctx=[
+'<strong>Feature List 修改建议</strong><br><br>Aibo 在 4/19 要求纠正 Feature List 并贴截图，我已帮你梳理了 6 项修改：<br>1. Proactive 引擎描述需更新<br>2. Skill 标准化进度需标注<br>3. 评测数据需刷新为 87%<br>4. 安装体验需补充描述<br>5. ClawPilot 对标需新增<br>6. 团队协作功能需细化',
+'<strong>ClawPilot 竞品分析</strong><br><br>Aibo 在 dogfood 线程分享了对比 PPT，核心发现：<br><br>• ClawPilot 定位个人桌面助手，有 1000+ 用户和 Satya 背书<br>• 架构上用 Lobster 设备运行时，我们可作为能力提供者<br>• 他们有心跳但不预处理，我们的 Proactive 引擎是差异化优势<br>• 团队协作是我们的核心壁垒<br><br>建议在 dogfood 上讨论定位区分策略。',
+'<strong>O+4.0 Design 反馈</strong><br><br>Ruoqing 在 4/17 发了 Design 反馈，你答应回复但已拖了 4 天。<br><br>设计稿主要变更：<br>• 首页布局调整为三栏式<br>• AI 面板改为可折叠<br>• 新增团队动态信号条<br><br>我已帮你整理了变更摘要和回复草稿，需要我直接发送吗？'
+];
+setAiContext(ctx[i]);
+}
+
+// Workspace file tree
+function toggleSection(el){
+var arrow=el.querySelector('.tree-arrow');
+var children=el.nextElementSibling;
+arrow.classList.toggle('open');
+children.classList.toggle('collapsed');
+}
+function selectTreeItem(el,key){
+document.querySelectorAll('.tree-leaf').forEach(l=>l.classList.remove('active'));
+el.classList.add('active');
+renderWsContent(key);
+}
+
+var wsData={
+overview:'<div style="font-size:20px;font-weight:600;margin-bottom:4px">Concordia 0.3</div><div style="font-size:13px;color:var(--text2);margin-bottom:20px">4/30 发布 · 6 位成员 · 🤖 5 个 AI 活跃</div><div class="section-title">项目健康度</div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:14px;font-weight:600">进度 65%</span><span style="font-size:12px;padding:2px 8px;background:#FFF8DB;color:#DFAB01;border-radius:10px">⚠️ 注意</span></div><div style="background:#E8E5E0;border-radius:4px;height:8px;margin-bottom:12px"><div style="background:#DFAB01;border-radius:4px;height:8px;width:65%"></div></div><div style="font-size:12.5px;color:var(--text2)">4/30 发布倒计时 <strong>8 天</strong> · ⚠️ 1 个阻塞：Sales DevBox 权限（影响 2 条线）</div></div><div class="section-title">团队状态</div><div style="font-size:13px;color:var(--text2);line-height:2.4"><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#2383E2">YC</div><span>Yuecong</span><span style="color:var(--text3)">⏳ Proactive 引擎 + Feature List</span><span style="margin-left:auto;font-size:11px;color:var(--text3)">🤖 2h 前</span></div><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#0F7B6C">SP</div><span>Shan</span><span style="color:var(--text3)">✅ 评测 87%(↑12%) + Skill 标准化</span><span style="margin-left:auto;font-size:11px;color:var(--text3)">🤖 3h 前</span></div><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#D9730D">YY</div><span>Yana</span><span style="color:var(--orange)">⚠️ Sales onboarding 阻塞（DevBox 权限第 3 天）</span><span style="margin-left:auto;font-size:11px;color:var(--text3)">🤖 1h 前</span></div><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#E03E3E">JL</div><span>Jian</span><span style="color:var(--text3)">✅ Gateway 已上线 · DevBox 权限计划周三处理</span><span style="margin-left:auto;font-size:11px;color:var(--text3)">🤖 4h 前</span></div><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#7C3AED">DW</div><span>Danxia</span><span style="color:var(--text3)">⏳ Marketing 密集推进 · 本周 3 个会议</span><span style="margin-left:auto;font-size:11px;color:var(--text3)">🤖 5h 前</span></div><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#E78BB0">JZ</div><span>Jing</span><span style="color:var(--text3)">✅ Dynamic UI 模板优化中</span><span style="margin-left:auto;font-size:11px;color:var(--text3)">🤖 6h 前</span></div></div><div class="section-title" style="margin-top:24px">AI 发现的关联</div><div class="insight-bar"><div class="insight-item">💡 <strong>DevBox 权限 → 连锁影响：</strong>Yana 的 Sales onboarding 被卡 → Danxia 的 Marketing demo 也会受影响（依赖 Sales 数据）。建议让 Jian 提前到明天处理。</div></div><div class="insight-bar" style="margin-top:8px"><div class="insight-item">💡 <strong>同一根因：</strong>Shan 的评测里"多轮对话 75%"和 Yana 收到的用户反馈"记不住上下文"指向同一个问题。建议合并为 P0 改进项。</div></div>',
+
+'k-positioning':'<div style="font-size:18px;font-weight:600;margin-bottom:4px">定位方案汇总</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🟣 AI 编译 · 4/1 · 来源：3 份文档 + 2 次讨论</div><div style="font-size:13px;line-height:1.8;color:var(--text2)"><p style="margin-bottom:12px"><strong>核心定位：</strong>Concordia 是「团队 AI 工作系统」，不是个人助手。关键差异在于：</p><p style="margin-bottom:8px">1. <strong>多碳多硅协作</strong>：人类和 AI 在同一个项目空间里协作，而不是一对一对话</p><p style="margin-bottom:8px">2. <strong>Proactive 引擎</strong>：AI 不等指令，主动发现问题、预处理信息、推送洞察</p><p style="margin-bottom:8px">3. <strong>知识编译</strong>：把分散的 Teams 讨论、文档、邮件自动整理成结构化知识</p><p style="margin-bottom:16px">4. <strong>第四模式</strong>：超越 Copilot（辅助）、Agent（自动）、Autopilot（代理），走向人机共生</p></div><div class="source-trace"><div class="source-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">📎 来源溯源 ▾</div><div class="source-list" style="display:none">📄 定位PPT v3.pptx · Yuecong · 3/31<br>📄 Ryan Review Notes.docx · 4/8<br>💬 Teams · 一飞冲天 · "定位收敛讨论" · 3/28<br>💬 Teams · daily sync · "第四模式怎么讲" · 4/1<br>📄 The Fourth Mode 论文 · 4/6</div></div>',
+
+'k-compete':'<div style="font-size:18px;font-weight:600;margin-bottom:4px">竞品分析（含 ClawPilot）</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🟢 团队讨论 · 4/21 · 来源：Aibo PPT + 分析 + Teams</div><table class="cmp-table"><tr><th>维度</th><th>ClawPilot</th><th>Concordia</th></tr><tr><td>定位</td><td>个人桌面助手</td><td>团队 AI 工作系统</td></tr><tr><td>用户</td><td>1000+，Satya 背书</td><td>团队试用</td></tr><tr><td>架构</td><td>Lobster 设备运行时</td><td>可作为能力提供者</td></tr><tr><td>Proactive</td><td>有心跳，不预处理</td><td>Proactive 引擎</td></tr><tr><td>团队协作</td><td>无</td><td>多碳多硅项目空间</td></tr></table><div class="source-trace"><div class="source-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">📎 来源溯源 ▾</div><div class="source-list" style="display:none">📄 ClawPilot_vs_Concordia_CN_v2.pptx · Aibo 分享 · 4/21<br>📄 ClawPilot Overview and Plan.docx · Jakob Werner · 4/12<br>💬 Teams · dogfood 线程 · Aibo "做个材料作为输入" · 4/21</div></div>',
+
+'k-4mode':'<div style="font-size:18px;font-weight:600;margin-bottom:4px">第四模式核心概念</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🟢 论文提取 · 4/6</div><div style="font-size:13px;line-height:1.8;color:var(--text2)"><p style="margin-bottom:12px"><strong>三种已有模式：</strong></p><p style="margin-bottom:6px">• <strong>Copilot（辅助）</strong>：人主导，AI 建议。如 GitHub Copilot 代码补全</p><p style="margin-bottom:6px">• <strong>Agent（自动）</strong>：人下指令，AI 执行。如自动写报告</p><p style="margin-bottom:6px">• <strong>Autopilot（代理）</strong>：AI 代替人完成任务。如自动参会</p><p style="margin-bottom:12px"><strong>第四模式（共生）：</strong></p><p>人和 AI 作为平等的团队成员共同工作。AI 有自己的视角和主动性，能发现人类没注意到的关联，推动团队协作效率的质变。</p></div>',
+
+'k-karpathy':'<div style="font-size:18px;font-weight:600;margin-bottom:4px">Karpathy Wiki 方案</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🟢 推文提取 · 4/7</div><div style="font-size:13px;line-height:1.8;color:var(--text2)"><p>Andrej Karpathy 提出的「个人 Wiki」概念：AI 应该为每个人维护一个持续更新的知识库，而不是每次从零开始对话。</p><p style="margin-top:12px">Concordia 的知识编译功能正是这个方向的团队版实现——为整个项目空间维护共享知识。</p></div>',
+
+'k-eval':'<div style="font-size:18px;font-weight:600;margin-bottom:4px">评测报告</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🟣 AI 编译 · 4/15</div><div style="font-size:13px;line-height:1.8;color:var(--text2)"><p style="margin-bottom:12px"><strong>整体通过率：87%（↑12%）</strong></p><p style="margin-bottom:6px">• 邮件处理：92%</p><p style="margin-bottom:6px">• 日程管理：90%</p><p style="margin-bottom:6px">• 文档分析：88%</p><p style="margin-bottom:6px">• 多轮对话：75% ⚠️</p><p style="margin-bottom:6px">• Teams 集成：85%</p><p style="margin-top:12px;color:var(--orange)">⚠️ 多轮对话是当前最大短板，与用户反馈"记不住上下文"一致。</p></div>',
+
+'k-feedback':'<div style="font-size:18px;font-weight:600;margin-bottom:4px">使用反馈汇总</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🟢 反馈群 · 4/7</div><div style="font-size:13px;line-height:1.8;color:var(--text2)"><p style="margin-bottom:8px">• "记不住上下文，聊几轮就忘了" — 多位用户</p><p style="margin-bottom:8px">• "每次要重新说一遍背景" — Sales 团队</p><p style="margin-bottom:8px">• "知识编译很有用，但更新不够及时" — Yana</p><p style="margin-bottom:8px">• "Proactive 推送的洞察很惊艳" — Lisa</p><p style="margin-bottom:8px">• "希望能直接在 Teams 里操作" — Dawei</p></div>'
+};
+
+// File items
+wsData['f-sprint']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">冲刺表.xlsx</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">Yuecong · 3/31 · Excel 文件</div><div style="font-size:13px;color:var(--text2)">冲刺计划表，包含各模块任务分解和时间线。<br><br><button class="btn btn-primary" onclick="handleActionClick(\'正在下载冲刺表.xlsx...\')">下载文件</button></div>';
+wsData['f-ppt']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">定位PPT.pptx</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">Yuecong · 3/31 · PowerPoint</div><div style="font-size:13px;color:var(--text2)">Concordia 定位方案演示文档，已在 Ryan Review 中使用。<br><br><button class="btn btn-primary" onclick="handleActionClick(\'正在打开定位PPT...\')">打开文件</button></div>';
+wsData['f-clawppt']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">ClawPilot对比.pptx</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">Aibo · 4/21 · PowerPoint</div><div style="font-size:13px;color:var(--text2)">Aibo 制作的 ClawPilot vs Concordia 对比材料，建议在 dogfood 前查看。<br><br><button class="btn btn-primary" onclick="handleActionClick(\'正在打开 ClawPilot 对比 PPT...\')">打开文件</button></div>';
+wsData['f-proactive']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">Proactive架构.md</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">Yuecong · 4/20 · Markdown</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><p style="margin-bottom:8px"><strong>Proactive 引擎架构：</strong></p><p style="margin-bottom:6px">1. 数据采集层：M365 多源 API + Webhook</p><p style="margin-bottom:6px">2. 信号处理层：识别、分类、优先级排序</p><p style="margin-bottom:6px">3. 预处理层：AI 分析、草稿生成、关联发现</p><p>4. 推送层：卡片化展示 + 一键操作</p></div>';
+
+// AI outputs
+wsData['ai-4mode']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">The_Fourth_Mode_CN.pdf</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🔵 AI 翻译</div><div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2)">🤖 此文件由 AI 自动翻译生成</div><div style="font-size:13px;color:var(--text2)">第四模式论文的中文翻译版本，由洋葱头自动翻译并校对。</div>';
+wsData['ai-briefing']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">meeting-briefing.skill</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">🟣 AI 产出</div><div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2)">🤖 此 Skill 由 AI 自动生成</div><div style="font-size:13px;color:var(--text2)">会前自动生成简报的 Skill，包含上次会议回顾、今日议题、关联任务等。</div>';
+
+// Discussion
+wsData['d-weekly']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">本周讨论要点</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">AI 从 Teams 自动整理 · 最后更新：2 小时前</div><div style="font-size:13px;line-height:2;color:var(--text2)"><p>· Aibo 分享了 ClawPilot 对比 PPT，团队开始正式对标</p><p>· Lisa 建议参考 Concordia 知识体系做组织结构设计</p><p>· Yana 提出 Meeting Autopilot 开源方案（分阶段），等 Yuecong 回复</p><p>· Shan 发布 Skill 标准化 ZIP 规范，月底各负责人需更新</p><p>· Dawei 在 daily sync 追问"什么时候能让我试"</p><p>· Aibo 要求纠正 Feature List 并贴截图</p></div><div style="font-size:11px;color:var(--text3);margin-top:16px">来源：一飞冲天群 + daily sync + dogfood 线程</div>';
+wsData['d-decisions']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">关键决策记录</div><div style="font-size:12px;color:var(--text2);margin-bottom:20px">AI 整理</div><div style="font-size:13px;line-height:2;color:var(--text2)"><p><strong>4/21</strong> 正式启动 ClawPilot 对标分析</p><p><strong>4/18</strong> Skill 标准化规范定稿，月底各负责人需完成更新</p><p><strong>4/15</strong> 评测报告发布，多轮对话定为 P0 改进项</p><p><strong>4/8</strong> Ryan Review 通过，定位收敛为"团队 AI 工作系统"</p></div>';
+
+// Tasks
+wsData['t-devbox']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">DevBox 权限</div><div style="font-size:13px;color:var(--red);margin-bottom:16px">🔴 阻塞中 · 第 3 天</div><div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px"><strong>负责人：</strong>Jian Liu<br><strong>影响范围：</strong>Sales onboarding (Yana) + Marketing demo (Danxia)</div><div class="section-title">流转状态</div><div style="font-size:13px;color:var(--text2);margin-bottom:16px;font-family:monospace">Yana(发起) ●────● Jian(处理中) ○ Yana(验证)</div><div class="section-title">时间线</div><div style="margin-bottom:16px"><div class="timeline-item"><span class="timeline-date">4/18</span><span>Yana 发现 Sales 团队无 DevBox 权限</span></div><div class="timeline-item"><span class="timeline-date">4/19</span><span>Yana 的 AI 通知 Jian 的 AI</span></div><div class="timeline-item"><span class="timeline-date">4/20</span><span>Jian 创建 ADO #120456，计划周三处理</span></div><div class="timeline-item"><span class="timeline-date">4/21</span><span>项目 AI 发现连锁影响，建议提前</span></div></div><div class="insight-bar"><div class="insight-item">AI 分析：如果周三处理，Marketing demo 来不及在 4/30 前验证。建议提前到明天。</div></div><div style="margin-top:16px;display:flex;gap:8px"><button class="btn btn-primary" onclick="handleActionClick(\'已通知 Jian 提前处理 DevBox 权限，消息已发送到 Teams\')">通知 Jian 提前处理</button><button class="btn" onclick="handleActionClick(\'已标记保持周三计划，将持续监控进度\')">保持周三</button></div>';
+
+wsData['t-feature']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">Feature List</div><div style="font-size:13px;color:var(--orange);margin-bottom:16px">🟡 进行中</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><strong>负责人：</strong>Yuecong<br><strong>截止：</strong>4/30 前完成<br><strong>进度：</strong>Aibo 提出 6 项修改，待确认并更新 PPT<br><br><button class="btn btn-primary" onclick="handleActionClick(\'正在打开 Feature List 编辑...\')">编辑 Feature List</button></div>';
+
+wsData['t-skill']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">Skill 标准化</div><div style="font-size:13px;color:var(--orange);margin-bottom:16px">🟡 月底截止</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><strong>负责人：</strong>Shan Peng<br><strong>截止：</strong>4/30<br><strong>进度：</strong>ZIP 规范已发布，各负责人需按规范更新自己的 Skill</div>';
+
+wsData['t-eval']='<div style="font-size:18px;font-weight:600;margin-bottom:4px">评测 87%</div><div style="font-size:13px;color:var(--green);margin-bottom:16px">🟢 完成</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><strong>负责人：</strong>Shan Peng<br><strong>结果：</strong>整体通过率 87%（↑12%），多轮对话 75% 待改进</div>';
+
+// AI workspace
+wsData['ai-index']='<div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text3)">🤖 AI 工作区 · 此区域由 AI 自动维护，人类可查看但通常不需要编辑</div><div style="font-size:18px;font-weight:600;margin-bottom:12px">_index.md</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><p>项目空间索引文件，记录所有信息源和更新频率：</p><p style="margin-top:8px">• Teams 群「一飞冲天」· 每 30 分钟扫描</p><p>• SharePoint Concordia 文件夹 · 文件变更 webhook</p><p>• Daily sync 会议 · 会后自动处理</p><p>• ADO Board · 状态变更通知</p></div>';
+wsData['ai-ctx']='<div style="background:var(--sidebar);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text3)">🤖 AI 工作区 · 此区域由 AI 自动维护</div><div style="font-size:18px;font-weight:600;margin-bottom:12px">_context_snapshot.md</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><p>最近一次上下文快照（4/22 01:00）：</p><p style="margin-top:8px">• 活跃讨论：ClawPilot 对标、Feature List 更新</p><p>• 阻塞项：DevBox 权限（3 天）</p><p>• 即将事件：430 Dogfood（今天 13:30）</p><p>• 风险预警：4/30 发布可能受 DevBox 阻塞影响</p></div>';
+
+var wsContextMap = {
+'overview': '这是 Concordia 0.3 的项目概览。当前进度 65%，有 1 个阻塞（DevBox 权限）。<br><br>你想了解什么？可以问我关于项目进度、团队状态、或任何具体事项。',
+'k-positioning': '<strong>定位方案汇总</strong><br><br>这份知识由 AI 从定位 PPT（Slides 17-19, 36）和 Teams 讨论中编译而成。<br><br>核心结论：7 位成员各提出了不同定位，Dawei 的"Digital Chief of Staff"目前是领跑方案。<br><br>你可以问我关于任何定位方案的细节，或者让我对比不同方案的优劣。',
+'k-compete': '<strong>竞品分析：ClawPilot</strong><br><br>基于 Aibo 分享的对比 PPT 和 Jakob Werner 的架构文档分析：<br><br>· ClawPilot 是个人桌面助手，1000+ 用户，Satya 背书<br>· Concordia 的差异化在于团队级 AI 工作系统<br>· 建议策略：不竞争，做互补——成为 ClawPilot 的 Proactive 能力层<br><br>需要我详细分析某个维度吗？',
+'k-4mode': '<strong>第四模式核心概念</strong><br><br>来自 Dawei 的论文《第四模式——数字伙伴》。<br><br>M碳+N硅 框架：多人+多AI 组成协作单元。这正是我们现在在项目空间里实践的——每个人的 AI 自动为项目贡献信息。',
+'k-karpathy': '<strong>Karpathy Wiki 方案</strong><br><br>LLM 的价值不是对话，是构建和维护结构化知识。这就是我们"知识编译"功能的理论基础——从 Teams/邮件自动编译成可检索的知识条目。',
+'k-eval': '<strong>评测报告</strong><br><br>Shan 的评测数据显示通过率 87%（↑12%）。优势领域：会议简报 95%、知识检索 90%。待改进：多轮对话 75%。<br><br>⚠️ 多轮对话 75% 和 Sales 用户反馈"记不住上下文"是同一个问题。',
+'k-feedback': '<strong>使用反馈汇总</strong><br><br>正面：Delong 12 分钟修 bug、Danxia ADO skill 贡献。<br>改进：碳硅交互不清晰、Skill 调度漂移（已在 0.0.4 修复）。',
+'f-sprint': '这是 <strong>0.3 冲刺表</strong>。当前 W3/W5，Skill 生态 + 评测体系阶段。<br><br>需要我帮你更新进度吗？',
+'f-ppt': '这是 <strong>定位 PPT</strong>，45 页。Aibo 要求你纠正 Feature List 并贴截图——这就是从这个文件来的。',
+'f-clawppt': 'Aibo 在 dogfood 线程分享的 <strong>ClawPilot vs Concordia</strong> 对比 PPT（v2 版本）。<br><br>"做个材料作为输入"——Aibo 原话。建议你在 dogfood 前看完。',
+'f-proactive': '你写的 <strong>Proactive Engine 架构</strong>文档。5 层架构：感知→理解→准备→呈现→学习。',
+'d-weekly': '<strong>本周讨论要点</strong>（AI 从 Teams 自动整理）<br><br>· Aibo 分享 ClawPilot 对比 PPT<br>· Lisa 建议参考知识体系做组织结构<br>· Yana 提出开源方案（分阶段）<br>· Shan 发布 Skill 标准化规范<br>· Dawei 追问发布时间',
+'d-decisions': '<strong>关键决策记录</strong><br><br>· 4/30 发布范围：待确认（Skill Store 可能去掉）<br>· DevBox 权限优先级：Jian 建议周三，项目 AI 建议提前<br>· ClawPilot 定位：互补不竞争（Aibo 的 PPT 方向）',
+'t-devbox': '<strong>DevBox 权限</strong> · 🔴 阻塞中<br><br>负责人：Jian Liu<br>发起人：Yana Yuan<br>已卡 3 天<br><br>流转：Yana(发起) ●——● Jian(处理中) ○ Yana(验证)<br><br>⚠️ 连锁影响：Sales onboarding + Marketing demo<br><br>AI 建议：让 Jian 提前到明天处理',
+'t-feature': '<strong>Feature List 更新</strong> · 🟡 进行中<br><br>负责人：你<br>Aibo 4/19 要求"纠正下然后粘贴上对应的图"<br><br>6 项修改建议已整理好，你确认后就能完成。',
+'t-skill': '<strong>Skill 标准化</strong> · 🟡 月底截止<br><br>负责人：Shan<br>ZIP 规范已发布，等待各负责人更新。你的 Proactive 相关 Skill 也在范围内。',
+'t-eval': '<strong>评测 87%</strong> · 🟢 完成<br><br>Shan 完成，通过率比上版提升 12%。优势：会议简报 95%。待改进：多轮对话 75%。',
+'ai-4mode': '这是 AI 自动翻译的<strong>第四模式论文</strong>中文版。可以问我论文中的任何概念。',
+'ai-briefing': '这是 AI 自动生成的<strong>会前简报 Skill</strong>。它会在每次会议前自动生成简报，包含上次会议回顾、今日议题、关联任务等。',
+'ai-index': '这是 AI 工作区的<strong>索引文件</strong>，记录所有信息源和更新频率。通常不需要手动编辑。',
+'ai-ctx': '这是 AI 工作区的<strong>上下文快照</strong>，记录当前项目状态。AI 会自动维护。'
+};
+
+var teamContextMap = {
+'yuecong': '这是<strong>你自己</strong>的 AI 汇报。<br><br>当前在做：Proactive 引擎 + Feature List 更新<br>Pipeline 今天触发 7 次<br><br>你还有 3 件待办未完成。',
+'shan': '<strong>Shan 的 AI</strong> 汇报：<br><br>评测通过率 87%（↑12%），Skill 标准化规范已发布。<br>SI% 指标方案和你共同负责，下周交第一版。<br><br>💡 Shan 的评测里"多轮对话 75%"和 Yana 的用户反馈可能是同一个问题。',
+'yana': '<strong>Yana 的 AI</strong> 汇报：<br><br>⚠️ Sales onboarding 被 DevBox 权限卡住（第 3 天）。<br>已通知 Jian 的 AI，Jian 建议周三处理。<br>开源提案已发，等你回复方向。<br><br>💡 她的 DevBox 阻塞也影响 Danxia 的 Marketing demo。<br><br><button class="btn btn-primary" onclick="handleActionClick(\'帮 Yana 协调 Jian 提前处理\')">帮 Yana 协调 Jian</button>',
+'jian': '<strong>Jian 的 AI</strong> 汇报：<br><br>Gateway 新版本已上线，稳定运行。<br>收到 Yana 的 DevBox 权限请求，已创建 ADO #120456。<br>计划周三处理，但项目 AI 建议提前到明天。<br><br>💡 Yana 和 Danxia 两条线都在等这个权限。',
+'danxia': '<strong>Danxia 的 AI</strong> 汇报：<br><br>Marketing onboarding 密集推进，本周 3 个会议。<br>Dynamic UI/Skills 设计迭代中。<br><br>⚠️ Marketing demo 依赖 Sales 数据——如果 DevBox 权限不解决，demo 也会受影响。<br><br>💡 这就是"多碳多硅"的价值：Danxia 自己可能还不知道 DevBox 问题会影响她，但她的 AI 和 Yana 的 AI 自动关联发现了这个风险。',
+'jing': '<strong>Jing 的 AI</strong> 汇报：<br><br>Dynamic UI 模板优化中：布局/配色/响应式适配。<br>Figma 评论等你确认方向（16+ 条评论）。'
+};
+
+function renderWsContent(key){
+var el=document.getElementById('ws-inner');
+el.innerHTML=wsData[key]||'<div style="color:var(--text3);font-size:13px">选择左侧文件查看内容</div>';
+var names={overview:'概览','k-positioning':'定位方案汇总','k-compete':'竞品分析','k-4mode':'第四模式','k-karpathy':'Karpathy Wiki','k-eval':'评测报告','k-feedback':'使用反馈','f-sprint':'冲刺表.xlsx','f-ppt':'定位PPT.pptx','f-clawppt':'ClawPilot对比.pptx','f-proactive':'Proactive架构.md','ai-4mode':'Fourth_Mode_CN.pdf','ai-briefing':'meeting-briefing.skill','d-weekly':'本周讨论要点','d-decisions':'关键决策记录','t-devbox':'DevBox 权限','t-feature':'Feature List','t-skill':'Skill 标准化','t-eval':'评测 87%','ai-index':'_index.md','ai-ctx':'_context_snapshot.md'};
+var bc=document.getElementById('ws-breadcrumb');if(bc)bc.textContent=names[key]||key;
+if(wsContextMap[key])setAiContext(wsContextMap[key]);
+// Add clickable team rows for overview
+if(key==='overview'){
+var rows=el.querySelectorAll('.avatar');
+var teamKeys=['yuecong','shan','yana','jian','danxia','jing'];
+rows.forEach(function(av,i){
+var row=av.parentElement;
+row.style.cursor='pointer';
+row.style.borderRadius='8px';
+row.style.padding='6px 8px';
+row.onclick=function(){if(teamContextMap[teamKeys[i]])setAiContext(teamContextMap[teamKeys[i]])};
+row.onmouseenter=function(){this.style.background='var(--hover)'};
+row.onmouseleave=function(){this.style.background=''};
+});
+// Add ripple hint
+var insightSection=el.querySelector('.insight-bar');
+if(insightSection){
+var lastInsight=el.querySelectorAll('.insight-bar');
+var ripple=document.createElement('div');
+ripple.style.cssText='margin-top:24px;padding:12px 16px;background:#F0F7FF;border:1px solid #D3E4FD;border-radius:10px;font-size:12px;color:#2383E2;line-height:1.6';
+ripple.innerHTML='🤖 以上信息由每位成员的 AI 自动汇报，无需手动更新。<br>点击任何成员可以查看详细进展和 AI 发现的跨人关联。';
+lastInsight[lastInsight.length-1].parentElement.appendChild(ripple);
+}
+}
+}
+
+// Meeting
+var meetData={
+sync:'<div style="font-size:20px;font-weight:600;margin-bottom:4px">Concordia daily sync</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:13px;color:var(--text2)">今天 09:30-10:00</span><span style="font-size:12px;padding:2px 8px;background:#E8F5E9;color:var(--green);border-radius:10px">🟢 已准备</span></div><div class="section-title">会议信息</div><div style="font-size:13px;color:var(--text2);line-height:2;margin-bottom:16px">📍 BJW-1/5.1A + Teams<br>👤 组织者：Dawei Gu<br>👥 参会：Dawei Gu, Yuecong, Aibo Liu, Shan Peng, Jian Liu（5 人）</div><div class="section-title">AI 准备的简报</div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text2)"><strong>常规议题：</strong><br>· 各模块进度同步<br>· 阻塞问题处理<br>· 本日计划<br><br><strong>今日重点关注：</strong><br>· DevBox 权限阻塞（第 3 天）<br>· Feature List 更新进度<br>· 下午 dogfood 的准备状态</div><div class="section-title">参会者动态</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><div style="display:flex;align-items:center;gap:8px;padding:4px 0"><div style="width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">DG</div><span><strong>Dawei</strong> · 组织者 · 关注整体进度</span></div><div style="display:flex;align-items:center;gap:8px;padding:4px 0"><div style="width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">JL</div><span><strong>Jian</strong> · DevBox 权限计划周三处理</span></div></div>',
+
+dogfood:'<div style="font-size:20px;font-weight:600;margin-bottom:4px">Concordia 430 Dogfood</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:13px;color:var(--text2)">今天 13:30-14:15</span><span style="font-size:12px;padding:2px 8px;background:#FFF0E0;color:var(--orange);border-radius:10px">🟡 准备中</span></div><div class="section-title">会议信息</div><div style="font-size:13px;color:var(--text2);line-height:2;margin-bottom:16px">📍 BJW 4.2C + Teams<br>👤 组织者：Dawei Gu<br>👥 参会：Dawei Gu, Aibo Liu, Jian Liu, Lisa Yang, 你（5 人）</div><div class="section-title">AI 准备的简报</div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text2)"><strong>上次回顾：</strong><br>· W2 定位收敛 + Ryan Review 完成<br>· 评测通过率 87%（↑12%）<br>· Proactive Pipeline 上线运行<br><br><strong>今天讨论要点：</strong><br>· 4/30 发布范围最终确认<br>· Proactive Pipeline 链路验证<br>· 安装体验 demo<br>· ClawPilot 对标讨论（Aibo 准备了对比 PPT）<br><br><strong>已知问题：</strong><br>· Feature List 待更新（Aibo 上周六要求）<br>· 安装描述未确定（需对标 ClawPilot）<br>· DevBox 权限阻塞（影响 Sales + Marketing）<br><br><strong>关联任务：</strong><br>· Feature List 纠正（你 · 进行中）<br>· 安装流程一句话描述（你 · 待完成）<br>· ClawPilot 对比分析（Aibo · 已完成）</div><div class="section-title">参会者动态</div><div style="font-size:13px;color:var(--text2);line-height:1.8"><div style="display:flex;align-items:center;gap:8px;padding:4px 0"><div style="width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">DG</div><span><strong>Dawei</strong> · 组织者 · 关注发布时间和范围</span></div><div style="display:flex;align-items:center;gap:8px;padding:4px 0"><div style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">AL</div><span><strong>Aibo</strong> · 准备了 ClawPilot 对比 PPT · 推动提前发布</span></div><div style="display:flex;align-items:center;gap:8px;padding:4px 0"><div style="width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">JL</div><span><strong>Jian</strong> · Gateway 已上线 · DevBox 权限待处理</span></div><div style="display:flex;align-items:center;gap:8px;padding:4px 0"><div style="width:24px;height:24px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">LY</div><span><strong>Lisa</strong> · 建议参考知识体系做组织结构</span></div></div>',
+
+proactive:'<div style="font-size:20px;font-weight:600;margin-bottom:4px">Proactive 能力对齐</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:13px;color:var(--text2)">今天 15:00-15:45</span><span style="font-size:12px;padding:2px 8px;background:#E8F5E9;color:var(--green);border-radius:10px">🟢 已准备</span></div><div class="section-title">会议信息</div><div style="font-size:13px;color:var(--text2);line-height:2;margin-bottom:16px">📍 Teams<br>👤 组织者：你<br>👥 参会：Yuecong, Yana Yuan, Yimeng Zhang（3 人）</div><div class="section-title">AI 准备的简报</div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text2)"><strong>讨论议题：</strong><br>· Proactive 引擎架构评审<br>· 心跳 vs 事件驱动讨论<br>· 与 ClawPilot 心跳机制对比<br><br><strong>准备材料：</strong><br>· Proactive架构.md（你 · 4/20 更新）<br>· ClawPilot 对比分析（Aibo · 可参考）</div>',
+
+sync2:'<div style="font-size:20px;font-weight:600;margin-bottom:4px">Concordia daily sync</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:13px;color:var(--text2)">明天 09:30-10:00</span><span style="font-size:12px;padding:2px 8px;background:var(--hover);color:var(--text3);border-radius:10px;border:1px solid var(--border)">未开始</span></div><div class="section-title">会议信息</div><div style="font-size:13px;color:var(--text2);line-height:2;margin-bottom:16px">📍 Teams<br>👤 组织者：Dawei Gu<br>👥 参会：Dawei Gu, Yuecong, Aibo Liu, Shan Peng, Jian Liu（5 人）</div><div style="font-size:13px;color:var(--text3)">简报将在明天 08:00 自动生成</div>',
+
+allhands:'<div style="font-size:20px;font-weight:600;margin-bottom:4px">MMAIS All Hands</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:13px;color:var(--text2)">明天 14:00-15:00</span><span style="font-size:12px;padding:2px 8px;background:var(--hover);color:var(--text3);border-radius:10px;border:1px solid var(--border)">未开始</span></div><div class="section-title">会议信息</div><div style="font-size:13px;color:var(--text2);line-height:2;margin-bottom:16px">📍 Teams · 北京+成都混合<br>👤 组织者：Dawei Gu<br>👥 参会：部门全体（~50 人）</div><div style="font-size:13px;color:var(--text3)">简报将在明天 12:00 自动生成</div>',
+
+culture:'<div style="font-size:20px;font-weight:600;margin-bottom:4px">GCR Culture Conference</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:20px"><span style="font-size:13px;color:var(--text2)">明天 10:00 · 全天活动</span><span style="font-size:12px;padding:2px 8px;background:var(--hover);color:var(--text3);border-radius:10px;border:1px solid var(--border)">未开始</span></div><div class="section-title">会议信息</div><div style="font-size:13px;color:var(--text2);line-height:2;margin-bottom:16px">📍 线下+线上混合<br>👤 组织者：GCR 文化委员会<br>👥 参会：GCR 全员 · 多 session 可选</div><div style="font-size:13px;color:var(--text3)">全天活动，包含多个 session，可按兴趣选择参加</div>'
+};
+
+function showMeeting(id){
+document.querySelectorAll('.meeting-item').forEach(function(i){i.classList.remove('active')});
+var items=document.querySelectorAll('.meeting-item');
+items.forEach(function(i){if(i.getAttribute('onclick')&&i.getAttribute('onclick').indexOf("'"+id+"'")!==-1)i.classList.add('active')});
+document.getElementById('meeting-detail').innerHTML=meetData[id]||'';
+var contextMap={sync:'Concordia daily sync 简报已准备好。重点关注 DevBox 权限阻塞和今天 dogfood 的准备状态。',dogfood:'430 Dogfood 简报已准备好。<br><br>⚠️ 你有 2 个待完成项：Feature List 纠正 和 安装描述。建议在会前处理。',proactive:'Proactive 能力对齐会议。你是发起人，架构文档已就绪。',sync2:'明天的 daily sync，简报将在明天 08:00 生成。',allhands:'MMAIS All Hands，部门全体会议。',culture:'GCR Culture Conference，全天活动。'};
+if(contextMap[id])setAiContext(contextMap[id]);
+}
+
+// Recruit
+var candidateData={
+zhangxm:'<div style="padding:24px 28px;max-width:700px"><div style="display:flex;align-items:center;gap:16px;margin-bottom:20px"><div style="width:48px;height:48px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600">张</div><div><div style="font-size:18px;font-weight:600">张小明</div><div style="font-size:13px;color:var(--text2)">北京大学 · 计算机科学 · 2026 届</div></div><div style="margin-left:auto"><span style="font-size:18px;font-weight:700;color:var(--green)">92%</span><span style="font-size:12px;color:var(--text3);margin-left:4px">匹配度</span></div></div><div class="section-title">AI 分析</div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text2)"><strong>优势：</strong><br>· 算法基础扎实，ACM 区域赛银牌<br>· 有 2 个 AI 项目经验（NLP + CV）<br>· 实习经历：字节跳动 AI Lab 3 个月<br>· 沟通能力强，一面表现优秀<br><br><strong>风险：</strong><br>· 无企业级大规模系统开发经验<br>· 对微软技术栈不熟悉<br><br><strong>综合评价：</strong><br>技术能力突出，学习能力强。建议尽快推进二面，避免被竞品 offer 抢走。</div><div class="section-title">面试进度</div><div style="display:flex;align-items:center;gap:4px;margin-bottom:20px;font-size:12px;flex-wrap:wrap"><span style="background:var(--green);color:#fff;padding:4px 12px;border-radius:12px">✅ 简历筛选</span><span style="color:var(--text3)">→</span><span style="background:var(--green);color:#fff;padding:4px 12px;border-radius:12px">✅ 一面</span><span style="color:var(--text3)">→</span><span style="background:var(--orange);color:#fff;padding:4px 12px;border-radius:12px">⏳ 二面</span><span style="color:var(--text3)">→</span><span style="background:var(--hover);color:var(--text3);padding:4px 12px;border-radius:12px;border:1px solid var(--border)">HR 面</span><span style="color:var(--text3)">→</span><span style="background:var(--hover);color:var(--text3);padding:4px 12px;border-radius:12px;border:1px solid var(--border)">Offer</span></div><div class="section-title">面试记录</div><div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px"><div style="padding:8px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between"><strong>一面 · 技术面</strong><span style="color:var(--text3)">4/15 · 张磊</span></div><div style="margin-top:4px">算法题 2/2 通过，系统设计思路清晰。建议推进二面。评分：4.5/5</div></div><div style="padding:8px 0"><div style="display:flex;justify-content:space-between"><strong>简历筛选</strong><span style="color:var(--text3)">4/10 · HR</span></div><div style="margin-top:4px">背景匹配度高，项目经验丰富。推荐进入面试流程。</div></div></div><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="handleActionClick(\'安排张小明二面\')">安排二面</button><button class="btn" onclick="handleActionClick(\'查看张小明简历\')">查看简历</button><button class="btn" onclick="handleActionClick(\'对比其他候选人\')">对比其他候选人</button></div></div>',
+lixh:'<div style="padding:24px 28px;max-width:700px"><div style="display:flex;align-items:center;gap:16px;margin-bottom:20px"><div style="width:48px;height:48px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600">李</div><div><div style="font-size:18px;font-weight:600">李小红</div><div style="font-size:13px;color:var(--text2)">清华大学 · 人工智能 · 2026 届</div></div><div style="margin-left:auto"><span style="font-size:18px;font-weight:700;color:var(--green)">88%</span><span style="font-size:12px;color:var(--text3);margin-left:4px">匹配度</span></div></div><div class="section-title">AI 分析</div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text2)"><strong>优势：</strong><br>· 系统设计能力强，有 3 个开源项目贡献<br>· 清华 AI 实验室研究经历，发表 1 篇 NeurIPS workshop<br>· 实习经历：美团 AI 平台组 4 个月<br>· 代码质量高，注重工程规范<br><br><strong>风险：</strong><br>· 偏研究方向，工程落地经验有限<br>· 面试中偏内向，需要引导<br><br><strong>综合评价：</strong><br>研究背景扎实，工程潜力大。建议一面重点考察工程能力和团队协作。</div><div class="section-title">面试进度</div><div style="display:flex;align-items:center;gap:4px;margin-bottom:20px;font-size:12px;flex-wrap:wrap"><span style="background:var(--green);color:#fff;padding:4px 12px;border-radius:12px">✅ 简历筛选</span><span style="color:var(--text3)">→</span><span style="background:var(--orange);color:#fff;padding:4px 12px;border-radius:12px">⏳ 一面</span><span style="color:var(--text3)">→</span><span style="background:var(--hover);color:var(--text3);padding:4px 12px;border-radius:12px;border:1px solid var(--border)">二面</span><span style="color:var(--text3)">→</span><span style="background:var(--hover);color:var(--text3);padding:4px 12px;border-radius:12px;border:1px solid var(--border)">HR 面</span><span style="color:var(--text3)">→</span><span style="background:var(--hover);color:var(--text3);padding:4px 12px;border-radius:12px;border:1px solid var(--border)">Offer</span></div><div class="section-title">面试记录</div><div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px"><div style="padding:8px 0"><div style="display:flex;justify-content:space-between"><strong>简历筛选</strong><span style="color:var(--text3)">4/12 · HR</span></div><div style="margin-top:4px">清华 AI 方向，研究背景突出。推荐面试。</div></div></div><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="handleActionClick(\'安排李小红一面\')">安排一面</button><button class="btn" onclick="handleActionClick(\'查看李小红简历\')">查看简历</button><button class="btn" onclick="handleActionClick(\'对比其他候选人\')">对比其他候选人</button></div></div>',
+wangxg:'<div style="padding:24px 28px;max-width:700px"><div style="display:flex;align-items:center;gap:16px;margin-bottom:20px"><div style="width:48px;height:48px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600">王</div><div><div style="font-size:18px;font-weight:600">王小刚</div><div style="font-size:13px;color:var(--text2)">浙江大学 · 软件工程 · 2026 届</div></div><div style="margin-left:auto"><span style="font-size:18px;font-weight:700;color:var(--green)">85%</span><span style="font-size:12px;color:var(--text3);margin-left:4px">匹配度</span></div></div><div class="section-title">AI 分析</div><div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;font-size:13px;line-height:1.8;color:var(--text2)"><strong>优势：</strong><br>· 全栈开发能力强，前后端都有项目经验<br>· 实习经历：阿里云 5 个月，参与分布式系统<br>· 有技术博客，持续输出<br>· 一面表现稳定，逻辑清晰<br><br><strong>风险：</strong><br>· AI/ML 基础相对较弱<br>· 算法竞赛经历少<br><br><strong>综合评价：</strong><br>工程能力扎实，适合产品开发岗。建议二面重点考察 AI 相关能力和学习意愿。</div><div class="section-title">面试进度</div><div style="display:flex;align-items:center;gap:4px;margin-bottom:20px;font-size:12px;flex-wrap:wrap"><span style="background:var(--green);color:#fff;padding:4px 12px;border-radius:12px">✅ 简历筛选</span><span style="color:var(--text3)">→</span><span style="background:var(--green);color:#fff;padding:4px 12px;border-radius:12px">✅ 一面</span><span style="color:var(--text3)">→</span><span style="background:var(--orange);color:#fff;padding:4px 12px;border-radius:12px">⏳ 二面</span><span style="color:var(--text3)">→</span><span style="background:var(--hover);color:var(--text3);padding:4px 12px;border-radius:12px;border:1px solid var(--border)">HR 面</span><span style="color:var(--text3)">→</span><span style="background:var(--hover);color:var(--text3);padding:4px 12px;border-radius:12px;border:1px solid var(--border)">Offer</span></div><div class="section-title">面试记录</div><div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px"><div style="padding:8px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between"><strong>一面 · 技术面</strong><span style="color:var(--text3)">4/18 · 王磊</span></div><div style="margin-top:4px">系统设计题表现优秀，代码规范好。算法题 1/2 通过（第二题超时）。评分：4.0/5</div></div><div style="padding:8px 0"><div style="display:flex;justify-content:space-between"><strong>简历筛选</strong><span style="color:var(--text3)">4/11 · HR</span></div><div style="margin-top:4px">工程经历丰富，全栈能力突出。推荐面试。</div></div></div><div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="handleActionClick(\'安排王小刚二面\')">安排二面</button><button class="btn" onclick="handleActionClick(\'查看王小刚简历\')">查看简历</button><button class="btn" onclick="handleActionClick(\'对比其他候选人\')">对比其他候选人</button></div></div>'
+};
+function showCandidate(id){
+document.querySelectorAll('.hire-item').forEach(function(i){i.classList.remove('active')});
+var items=document.querySelectorAll('.hire-item');
+items.forEach(function(i){if(i.getAttribute('onclick')&&i.getAttribute('onclick').indexOf("'"+id+"'")!==-1)i.classList.add('active')});
+document.getElementById('candidate-detail').innerHTML=candidateData[id]||'';
+var contextMap={zhangxm:'张小明 · 北大计算机 · 92% 匹配。一面已通过（4.5/5），建议尽快安排二面。',lixh:'李小红 · 清华 AI · 88% 匹配。简历已通过筛选，等待安排一面。',wangxg:'王小刚 · 浙大软工 · 85% 匹配。一面已通过（4.0/5），建议安排二面。'};
+if(contextMap[id])setAiContext(contextMap[id]);
+}
+// Modal
+function showCreateSpace(){document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+
+// Init
+renderWsContent('overview');
+showMeeting('sync');
+showCandidate('zhangxm');
+</script>
+</body>
+</html>
