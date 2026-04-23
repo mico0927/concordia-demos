@@ -153,19 +153,18 @@ body {
 </style>
 </head>
 <body>
-<nav style="background:#1a1a2e;padding:0 20px;display:flex;align-items:center;height:44px;font-family:-apple-system,Inter,sans-serif">
-  <a href="/concordia-demos/" style="font-size:13px;font-weight:700;color:#fff;text-decoration:none;margin-right:24px;display:flex;align-items:center;gap:8px;border:none">
-    <span style="width:20px;height:20px;border-radius:5px;background:#2383E2;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:800">C</span>Concordia
-  </a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/">产品文档</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/v8-demo.html">V8版本（多碳多硅）</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/v7-demo.html">V7 版本</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/multicarbon.html">多碳多硅</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.9);text-decoration:none;border:none;background:rgba(255,255,255,0.08)" href="/concordia-demos/clawpilot.html">ClawPilot 分析</a>
-</nav>
 
 <!-- Top Nav -->
-
+<nav style="background:#1a1a2e;padding:0 20px;display:flex;align-items:center;height:44px;flex-shrink:0">
+  <a href="/concordia-demos/" style="font-size:13px;font-weight:700;color:#fff;text-decoration:none;margin-right:24px;display:flex;align-items:center;gap:8px">
+    <span style="width:20px;height:20px;border-radius:5px;background:var(--blue);display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:800">C</span>
+    Concordia
+  </a>
+  <a class="topnav" href="/concordia-demos/">产品文档</a>
+  <a class="topnav" href="/concordia-demos/v8-demo.html">V8 工作台</a>
+  <a class="topnav" href="/concordia-demos/v7-demo.html">V7 版本</a>
+  <a class="topnav" href="/concordia-demos/multicarbon.html">多碳多硅</a>
+</nav>
 
 <div class="app">
   <!-- Nav Rail -->
@@ -266,25 +265,25 @@ body {
           </div>
           <div class="tree-item active" onclick="showWs('overview')">📋 概览</div>
           <div class="tree-group">📄 知识</div>
-          <div class="tree-item child" onclick="showWs('k-positioning')">定位方案汇总<span class="tree-tag">🟣</span></div>
-          <div class="tree-item child" onclick="showWs('k-compete')">竞品分析（含 ClawPilot）<span class="tree-tag">🟢</span></div>
-          <div class="tree-item child" onclick="showWs('k-mode4')">第四模式核心概念<span class="tree-tag">🟢</span></div>
-          <div class="tree-item child" onclick="showWs('k-karpathy')">Karpathy Wiki方案<span class="tree-tag">🟢</span></div>
-          <div class="tree-item child" onclick="showWs('k-eval')">评测报告<span class="tree-tag">🟣</span></div>
-          <div class="tree-item child" onclick="showWs('k-feedback')">使用反馈汇总<span class="tree-tag">🟢</span></div>
+          <div class="tree-item" onclick="showWs('k-positioning')">定位方案汇总<span class="tree-tag">🟣</span></div>
+          <div class="tree-item" onclick="showWs('k-compete')">竞品分析（含 ClawPilot）<span class="tree-tag">🟢</span></div>
+          <div class="tree-item" onclick="showWs('k-mode4')">第四模式核心概念<span class="tree-tag">🟢</span></div>
+          <div class="tree-item" onclick="showWs('k-karpathy')">Karpathy Wiki方案<span class="tree-tag">🟢</span></div>
+          <div class="tree-item" onclick="showWs('k-eval')">评测报告<span class="tree-tag">🟣</span></div>
+          <div class="tree-item" onclick="showWs('k-feedback')">使用反馈汇总<span class="tree-tag">🟢</span></div>
           <div class="tree-group">📎 文件</div>
-          <div class="tree-item child" onclick="showWs('f-sprint')">冲刺表.xlsx</div>
-          <div class="tree-item child" onclick="showWs('f-ppt')">定位PPT.pptx</div>
-          <div class="tree-item child" onclick="showWs('f-clawpilot')">ClawPilot对比.pptx</div>
-          <div class="tree-item child" onclick="showWs('f-proactive')">Proactive架构.md</div>
+          <div class="tree-item" onclick="showWs('f-sprint')">冲刺表.xlsx</div>
+          <div class="tree-item" onclick="showWs('f-ppt')">定位PPT.pptx</div>
+          <div class="tree-item" onclick="showWs('f-clawpilot')">ClawPilot对比.pptx</div>
+          <div class="tree-item" onclick="showWs('f-proactive')">Proactive架构.md</div>
           <div class="tree-group">💬 讨论摘要</div>
-          <div class="tree-item child" onclick="showWs('d-weekly')">本周讨论要点</div>
-          <div class="tree-item child" onclick="showWs('d-decisions')">关键决策记录</div>
+          <div class="tree-item" onclick="showWs('d-weekly')">本周讨论要点</div>
+          <div class="tree-item" onclick="showWs('d-decisions')">关键决策记录</div>
           <div class="tree-group">✅ 团队任务</div>
-          <div class="tree-item child" onclick="showWs('t-devbox')">🔴 DevBox 权限 · Jian</div>
-          <div class="tree-item child" onclick="showWs('t-feature')">🟡 Feature List · Yuecong</div>
-          <div class="tree-item child" onclick="showWs('t-skill')">🟡 Skill 标准化 · Shan</div>
-          <div class="tree-item child" onclick="showWs('t-eval')">🟢 评测 87% · Shan</div>
+          <div class="tree-item" onclick="showWs('t-devbox')">🔴 DevBox 权限 · Jian</div>
+          <div class="tree-item" onclick="showWs('t-feature')">🟡 Feature List · Yuecong</div>
+          <div class="tree-item" onclick="showWs('t-skill')">🟡 Skill 标准化 · Shan</div>
+          <div class="tree-item" onclick="showWs('t-eval')">🟢 评测 87% · Shan</div>
         </div>
         <div class="ws-content">
           <!-- Overview -->
