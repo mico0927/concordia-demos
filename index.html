@@ -8,10 +8,10 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    font-family: -apple-system, 'Inter', 'SF Pro Text', 'Segoe UI', 'PingFang SC', sans-serif;
-    font-size: 15.5px;
-    line-height: 1.85;
-    color: #1a1a2e;
+    font-family: -apple-system, 'Inter', 'SF Pro Text', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #37352F;
     background: #FAFAF9;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -21,7 +21,6 @@
   /* Selection */
   ::selection {
     background: rgba(35, 131, 226, 0.15);
-    color: #0f0c29;
   }
 
   /* Scrollbar */
@@ -32,34 +31,37 @@
 
   /* Hero */
   .hero {
-    background: linear-gradient(145deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-    color: #fff; padding: 80px 32px; text-align: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff; padding: 72px 48px 56px; text-align: center;
     position: relative; overflow: hidden;
   }
   .hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
   }
   .hero-badge {
     display: inline-block; font-size: 11px; letter-spacing: 0.15em;
-    padding: 4px 14px; border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px; margin-bottom: 20px; color: rgba(255,255,255,0.95);
+    padding: 4px 12px; border: none;
+    border-radius: 99px; margin-bottom: 20px; color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.08);
     position: relative; z-index: 1;
   }
   .hero h1 {
-    font-size: 48px; font-weight: 800; letter-spacing: -1px;
+    font-size: 36px; font-weight: 800; letter-spacing: -0.5px;
+    color: #fff;
     margin-bottom: 8px; position: relative; z-index: 1;
   }
   .hero-subtitle {
-    font-size: 20px; font-weight: 300; color: rgba(255,255,255,0.95);
+    font-size: 16px; font-weight: 400; color: rgba(255,255,255,0.7);
     margin-bottom: 12px; position: relative; z-index: 1;
-    letter-spacing: 0.1em;
   }
   .hero-meta {
-    font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 24px;
+    font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 24px;
     position: relative; z-index: 1;
   }
   .hero-tags {
@@ -67,28 +69,26 @@
     flex-wrap: wrap; position: relative; z-index: 1;
   }
   .hero-tags span {
-    font-size: 12px; padding: 5px 14px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 20px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    font-size: 12px; padding: 4px 12px;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 99px;
   }
 
   /* TOC */
   .toc {
-    max-width: 720px;
+    max-width: 860px;
     margin: -32px auto 0;
     padding: 28px 32px;
     background: #fff;
-    border-radius: 16px;
+    border-radius: 12px;
     position: relative;
     z-index: 2;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
     border: 1px solid rgba(0,0,0,0.04);
   }
   .toc summary {
-    font-size: 12px; font-weight: 600; color: #787774; cursor: pointer;
+    font-size: 12px; font-weight: 600; color: #9B9A97; cursor: pointer;
     text-transform: uppercase; letter-spacing: 0.08em;
   }
   .toc ol { padding: 14px 0 0 20px; columns: 2; column-gap: 32px; }
@@ -97,177 +97,172 @@
   .toc a:hover { text-decoration: underline; }
 
   /* Content */
-  .content { max-width: 720px; margin: 0 auto; padding: 20px 28px 80px; }
+  .content { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
 
   /* Headings */
   h2 {
-    font-size: 26px;
-    font-weight: 800;
-    color: #0f0c29;
-    margin: 64px 0 24px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #37352F;
+    margin: 56px 0 24px;
     padding-bottom: 14px;
     border-bottom: none;
     position: relative;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
   }
   h2::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 48px;
+    width: 60px;
     height: 3px;
     background: linear-gradient(90deg, #2383E2, #7C3AED);
     border-radius: 2px;
   }
   h3 {
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 700;
-    color: #1a1a2e;
-    margin: 44px 0 16px;
-    letter-spacing: -0.3px;
+    color: #37352F;
+    margin: 36px 0 16px;
   }
   h4 {
+    font-size: 16px;
     font-weight: 700;
-    color: #302b63;
-    margin: 28px 0 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 12px;
+    color: #37352F;
+    margin: 28px 0 12px;
+    text-transform: none;
+    letter-spacing: normal;
   }
 
   /* Paragraphs */
   p {
-    margin: 0 0 20px;
+    font-size: 15px;
+    margin: 0 0 16px;
     color: #37352F;
   }
   strong {
     font-weight: 700;
-    color: #0f0c29;
+    color: #37352F;
   }
 
   /* Links */
   a {
     color: #2383E2;
     text-decoration: none;
-    border-bottom: 1px solid rgba(35, 131, 226, 0.2);
-    transition: border-color 0.15s;
+    border-bottom: none;
   }
   a:hover {
-    border-bottom-color: #2383E2;
+    text-decoration: underline;
   }
 
   /* HR */
   hr {
     border: none;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #E8E5E0 20%, #E8E5E0 80%, transparent);
-    margin: 48px 0;
+    border-top: 1px solid #E8E5E0;
+    margin: 40px 0;
   }
 
   /* Lists */
-  ul { list-style: none; margin: 0 0 24px; padding: 0; }
+  ul { list-style: none; margin: 12px 0 20px 24px; padding: 0; font-size: 15px; }
   ul li {
     position: relative;
-    padding-left: 20px;
-    margin-bottom: 10px;
+    padding-left: 16px;
+    margin-bottom: 6px;
   }
   ul li::before {
     content: '';
     position: absolute;
     left: 0;
     top: 10px;
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: #2383E2;
   }
-  ol { margin: 0 0 24px 20px; }
-  ol li { margin-bottom: 10px; }
+  ol { margin: 12px 0 20px 24px; font-size: 15px; }
+  ol li { margin-bottom: 6px; }
 
   /* Blockquote */
   blockquote {
-    border-left: 4px solid;
+    border-left: 3px solid;
     border-image: linear-gradient(180deg, #2383E2, #7C3AED) 1;
-    margin: 0 0 28px;
-    padding: 18px 24px;
-    background: linear-gradient(135deg, #F0F7FF 0%, #F5F3FF 100%);
-    border-radius: 0 12px 12px 0;
-    font-size: 14.5px;
-    color: #1a1a2e;
-    line-height: 1.75;
+    margin: 0 0 20px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #F0F7FF, #F5F3FF);
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #37352F;
+    line-height: 1.7;
     font-style: italic;
   }
-  blockquote p { margin: 0; }
+  blockquote p { margin: 0; font-size: 14px; }
 
   /* Table */
   .table-wrap {
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid #E8E5E0;
-    margin: 0 0 28px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    margin: 0 0 24px;
     overflow-x: auto;
   }
   table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 13.5px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
   }
   th {
     background: #F7F6F3;
     font-weight: 600;
-    color: #6b7280;
-    padding: 14px 18px;
+    color: #37352F;
+    padding: 12px 16px;
     text-align: left;
-    font-size: 11.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: normal;
     border-bottom: 1px solid #E8E5E0;
   }
   td {
-    padding: 13px 18px;
-    border-bottom: 1px solid #F3F2EF;
-    color: #1a1a2e;
+    padding: 12px 16px;
+    border-bottom: 1px solid #F0EFEC;
+    color: #37352F;
   }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #FAFAF9; }
 
   /* Code */
   pre {
-    background: #1a1a2e;
-    color: #e0def4;
+    background: #1E1E2E;
+    color: #E0DEF4;
     border: none;
     border-radius: 12px;
-    padding: 22px 24px;
-    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 13px;
-    line-height: 1.75;
+    line-height: 1.6;
     overflow-x: auto;
-    margin: 0 0 24px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    margin: 0 0 20px;
   }
   code {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: 'JetBrains Mono', monospace;
     background: #F0EFEB;
-    padding: 2px 7px;
-    border-radius: 5px;
+    padding: 2px 6px;
+    border-radius: 4px;
     font-size: 13px;
     color: #c7254e;
-    font-weight: 500;
   }
   pre code {
     background: none;
     padding: 0;
     color: inherit;
-    font-weight: normal;
   }
 
   /* Footer */
   .footer {
-    max-width: 720px;
+    max-width: 860px;
     margin: 0 auto;
-    padding: 48px 28px;
+    padding: 48px 24px;
     text-align: center;
   }
   .footer-line {
@@ -278,7 +273,7 @@
     border-radius: 2px;
   }
   .footer p {
-    color: #B4B4B0;
+    color: #9B9A97;
     font-size: 13px;
     margin: 0;
   }
@@ -298,28 +293,20 @@
 
   /* Mobile */
   @media (max-width: 768px) {
-    .hero { padding: 48px 20px; }
-    .hero h1 { font-size: 32px; }
+    .hero { padding: 48px 20px 40px; }
+    .hero h1 { font-size: 28px; }
     .toc { margin: -20px 12px 0; padding: 20px; }
-    .content { padding: 16px 16px 60px; }
-    h2 { font-size: 22px; }
-    table { font-size: 12px; }
+    .content { padding: 24px 16px 60px; }
+    h2 { font-size: 20px; }
+    table { font-size: 13px; }
     th, td { padding: 10px 12px; }
     .toc ol { columns: 1; }
   }
 </style>
 </head>
 <body>
-<nav style="background:#1a1a2e;padding:0 20px;display:flex;align-items:center;height:44px;font-family:-apple-system,Inter,sans-serif">
-  <a href="/concordia-demos/" style="font-size:13px;font-weight:700;color:#fff;text-decoration:none;margin-right:24px;display:flex;align-items:center;gap:8px;border:none">
-    <span style="width:20px;height:20px;border-radius:5px;background:#2383E2;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:800">C</span>Concordia
-  </a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/">产品文档</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/v8-demo.html">V8版本（多碳多硅）</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/v7-demo.html">V7 版本</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/multicarbon.html">多碳多硅</a>
-  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.9);text-decoration:none;border:none;background:rgba(255,255,255,0.08)" href="/concordia-demos/clawpilot.html">ClawPilot 分析</a>
-</nav>
+<nav style="background:#16132e;padding:0 20px;display:flex;align-items:center;height:44px;font-family:-apple-system,Inter,sans-serif;flex-shrink:0"><a href="/concordia-demos/" style="font-size:13px;font-weight:700;color:#fff;text-decoration:none;margin-right:28px;display:flex;align-items:center;gap:7px"><span style="width:20px;height:20px;border-radius:5px;background:#2383E2;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:800">C</span>Concordia</a><a href="/concordia-demos/" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">产品文档</a><a href="/concordia-demos/v8-demo.html" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">V8 工作台</a><a href="/concordia-demos/v7-demo.html" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">V7 版本</a><a href="/concordia-demos/multicarbon.html" style="padding:5px 12px;border-radius:5px;font-size:12px;color:rgba(255,255,255,0.65);text-decoration:none">多碳多硅</a></nav>
+
 <div class="hero">
   <div class="hero-badge">PRODUCT DOCUMENT</div>
   <h1>Concordia V8</h1>
@@ -332,6 +319,27 @@
     <span>角色自适应</span>
   </div>
 </div>
+
+<nav class="toc">
+  <details open>
+    <summary>目录</summary>
+    <ol>
+      <li><a href="#s1">产品定位</a></li>
+      <li><a href="#s2">产品架构</a></li>
+      <li><a href="#s3">多碳多硅：从概念到落地</a></li>
+      <li><a href="#s4">项目空间设计</a></li>
+      <li><a href="#s5">工作流转</a></li>
+      <li><a href="#s6">AI 准确率与人的干预</a></li>
+      <li><a href="#s7">角色自适应</a></li>
+      <li><a href="#s8">右侧 AI 面板设计</a></li>
+      <li><a href="#s9">Proactive 引擎</a></li>
+      <li><a href="#s10">Old-New 故事</a></li>
+      <li><a href="#s11">DEMO</a></li>
+      <li><a href="#s12">路线图</a></li>
+      <li><a href="#clawpilot-analysis">附录：ClawPilot 产品分析</a></li>
+    </ol>
+  </details>
+</nav>
 
 <main class="content">
 
