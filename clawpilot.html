@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClawPilot 产品分析 — Concordia</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Inter', 'SF Pro Text', system-ui, sans-serif; background: #FAFAF9; color: #37352F; line-height: 1.7; }
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 72px 48px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .hero-inner { position: relative; max-width: 860px; margin: 0 auto; }
+  .hero h1 { font-size: 36px; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -0.5px; }
+  .hero .subtitle { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 16px; }
+  .hero .meta { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+  .hero .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hero .tag {
+    font-size: 12px; padding: 4px 12px; border-radius: 99px;
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Section headings */
+  h2 {
+    font-size: 24px; font-weight: 700; margin: 56px 0 24px;
+    padding-bottom: 8px;
+    background: linear-gradient(90deg, #2383E2, #7C3AED) no-repeat bottom left;
+    background-size: 60px 3px;
+  }
+  h3 { font-size: 18px; font-weight: 700; margin: 36px 0 16px; color: #37352F; }
+  h4 { font-size: 16px; font-weight: 700; margin: 28px 0 12px; color: #37352F; }
+
+  p { margin-bottom: 16px; font-size: 15px; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid #E8E5E0; margin: 40px 0; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 20px 0 28px; border-radius: 12px; overflow: hidden; border: 1px solid #E8E5E0; font-size: 14px; }
+  th { background: #F7F6F3; font-weight: 600; text-align: left; padding: 12px 16px; border-bottom: 1px solid #E8E5E0; }
+  td { padding: 12px 16px; border-bottom: 1px solid #F0EFEC; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+
+  /* Lists */
+  ul, ol { margin: 12px 0 20px 24px; font-size: 15px; }
+  li { margin-bottom: 6px; }
+
+  /* Scenario cards */
+  .scenario {
+    background: #fff; border: 1px solid #E8E5E0; border-radius: 12px;
+    padding: 28px 28px 20px; margin: 24px 0 32px;
+  }
+  .scenario h4 { margin-top: 0; font-size: 17px; }
+  .scenario .scene-meta { font-size: 13px; color: #9B9A97; margin-bottom: 16px; }
+  .scenario .steps { margin: 12px 0 16px; padding-left: 0; list-style: none; }
+  .scenario .steps li { position: relative; padding-left: 28px; margin-bottom: 8px; font-size: 14px; }
+  .scenario .steps li::before {
+    content: attr(data-step);
+    position: absolute; left: 0; top: 1px;
+    font-size: 11px; font-weight: 700; color: #2383E2;
+    background: rgba(35,131,226,0.08); border-radius: 4px;
+    padding: 1px 6px;
+  }
+  .scenario .value {
+    background: linear-gradient(135deg, rgba(35,131,226,0.06), rgba(124,58,237,0.06));
+    border-left: 3px solid #2383E2; border-radius: 0 8px 8px 0;
+    padding: 12px 16px; font-size: 14px; margin-top: 8px;
+  }
+
+  /* Highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(35,131,226,0.06), rgba(124,58,237,0.06));
+    border: 1px solid rgba(35,131,226,0.15); border-radius: 12px;
+    padding: 24px 28px; margin: 24px 0;
+  }
+  .highlight-box p:last-child { margin-bottom: 0; }
+
+  /* Feature list */
+  .feature-list { list-style: none; padding: 0; margin: 16px 0; }
+  .feature-list li { padding: 8px 0 8px 28px; position: relative; font-size: 14px; }
+  .feature-list li::before { content: '→'; position: absolute; left: 8px; color: #2383E2; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<nav style="background:#1a1a2e;padding:0 20px;display:flex;align-items:center;height:44px;font-family:-apple-system,Inter,sans-serif">
+  <a href="/concordia-demos/" style="font-size:13px;font-weight:700;color:#fff;text-decoration:none;margin-right:24px;display:flex;align-items:center;gap:8px;border:none">
+    <span style="width:20px;height:20px;border-radius:5px;background:#2383E2;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:800">C</span>Concordia
+  </a>
+  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/">产品文档</a>
+  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/v8-demo.html">V8版本（多碳多硅）</a>
+  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/v7-demo.html">V7 版本</a>
+  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.6);text-decoration:none;border:none" href="/concordia-demos/multicarbon.html">多碳多硅</a>
+  <a style="padding:4px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.9);text-decoration:none;border:none;background:rgba(255,255,255,0.08)" href="/concordia-demos/clawpilot.html">ClawPilot 分析</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>ClawPilot 产品分析</h1>
+    <p class="subtitle">基于 10 张设计稿的完整分析</p>
+    <p class="meta">2026-04-23</p>
+    <div class="tags">
+      <span class="tag">Desktop App</span>
+      <span class="tag">Mobile App</span>
+      <span class="tag">Co-create</span>
+      <span class="tag">5 Scenarios</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <h2>一、产品形态</h2>
+
+  <p>ClawPilot 有<strong>三个端</strong>：</p>
+
+  <table>
+    <thead>
+      <tr><th>端</th><th>形态</th><th>截图</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Desktop App</strong></td><td>独立 Electron 桌面应用 + Teams Bot 集成</td><td>Desktop Bot app.png</td></tr>
+      <tr><td><strong>Mobile App</strong></td><td>Teams 内 Bot 对话</td><td>Mobile Bot app.png</td></tr>
+      <tr><td><strong>Co-create</strong></td><td>类 Notion 的任务+文档工作台</td><td>co-create.png</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>Desktop 端</strong>：ClawPilot 直接嵌入 Teams 对话列表——它出现在你的 Chat 列表里，像一个同事一样跟你对话。它能主动发消息（"Maria 被 blocked 了，我帮你组装了一版 PPT"），你回复确认就行。</p>
+
+  <p><strong>Mobile 端</strong>：同样在 Teams Chat 里，手机上也能用。用户在机场、路上也能跟 ClawPilot 交互。</p>
+
+  <p><strong>Co-create 端</strong>：这是最新的设计方向——一个独立的工作台界面，左侧是任务列表（Open Tasks），右侧是 AI 对话。可以选文件夹、创建 workspace、搜索历史 session。</p>
+
+  <hr>
+
+  <h2>二、5 个核心场景</h2>
+
+  <div class="scenario">
+    <h4>Scenario 1: "The Meeting You Almost Weren't Ready For"（差点没准备好的会议）</h4>
+    <p class="scene-meta">8:45 AM · Sheeta 9 点有 leadership review，忘了准备</p>
+    <ul class="steps">
+      <li data-step="1">通知 → ClawPilot 提醒"Leadership review in 15 min, 3 open items and a blocker"</li>
+      <li data-step="2">Brief 已就绪 → Sheeta 点开，ClawPilot 已经从 email/Teams/SharePoint 组装好了 one-page brief</li>
+      <li data-step="3">在 Word 打开 → 完整的 Leadership Review Brief 文档</li>
+      <li data-step="4">会议开始 → Brief 和 ClawPilot 并排在桌面上</li>
+    </ul>
+    <div class="value"><strong>核心价值</strong>：零人工准备，AI 自动从多源数据生成会前简报。和我们的 meeting-prep 能力一样，但<strong>它直接生成了 Word 文档并排在桌面上</strong>。</div>
+  </div>
+
+  <div class="scenario">
+    <h4>Scenario 2: "The Escalation That Handled Itself"（自己处理的升级事件）</h4>
+    <p class="scene-meta">Sheeta 在深度工作，突然客户升级事件来了</p>
+    <ul class="steps">
+      <li data-step="0">深度工作模式（CRM open）</li>
+      <li data-step="1">检测到重要消息 → ClawPilot 判断紧急程度</li>
+      <li data-step="2">从多源采集信息 → email、Teams、内部系统</li>
+      <li data-step="3">ClawPilot 处理 → 自动整理情况、草拟回复</li>
+      <li data-step="4">通知用户 → 展示处理方案</li>
+      <li data-step="5">快速确认 → 用户点确认</li>
+      <li data-step="6">一行通知 → "问题已处理"</li>
+      <li data-step="7">回到工作 → 继续深度工作</li>
+    </ul>
+    <div class="value"><strong>核心价值</strong>：AI 在后台自动处理突发事件，只在需要确认时打扰你。<strong>这就是 Proactive 的极致形态——不只是发现事情，而是直接处理了。</strong></div>
+  </div>
+
+  <div class="scenario">
+    <h4>Scenario 3: "The Focus Shield"（专注力保护盾）</h4>
+    <p class="scene-meta">Harris 在写战略文档，各种消息不断涌入</p>
+    <ul class="steps">
+      <li data-step="1">消息涌入 → ClawPilot 启动 Focus Shield</li>
+      <li data-step="2">分类判断 → 哪些紧急、哪些可以稍后</li>
+      <li data-step="3">扫过来 → 批量展示分类结果</li>
+      <li data-step="4">整理反馈 → 帮你准备回复</li>
+      <li data-step="5">定时提醒 → 到点了再处理</li>
+      <li data-step="6">重返工作 → 回到文档继续写</li>
+    </ul>
+    <div class="value"><strong>核心价值</strong>：AI 帮你挡住噪音，让你专注深度工作。<strong>不是关闭通知，而是 AI 帮你分类和处理通知。</strong></div>
+  </div>
+
+  <div class="scenario">
+    <h4>Scenario 4: "The Work That Did Itself"（自己完成的工作）</h4>
+    <p class="scene-meta">Joel 是 Manager，每周一发 weekly status update 给 leadership chain<br>这是一个重复性的 30 分钟工作</p>
+    <ul class="steps">
+      <li data-step="1">模式识别 → ClawPilot 知道每周一要发 status</li>
+      <li data-step="2">自动采集 → 拉 Planner tasks、Teams discussions、Thursday email blockers、next week's events</li>
+      <li data-step="3">草拟邮件 → 用 Joel 的风格、格式、分发列表</li>
+      <li data-step="4">通知完成 → "Your weekly status is ready. I put it in Drafts"</li>
+      <li data-step="5">确认发送 → Joel 打开看了一眼，点发送 → 90 秒完成，原来 30 分钟</li>
+    </ul>
+    <div class="value"><strong>核心价值</strong>：重复性工作自动化。AI 学会了你的模式后，不需要你触发，到时间自动做好等你确认。<strong>这和我们设计的 L3→L4 自主权升级一模一样。</strong></div>
+  </div>
+
+  <div class="scenario">
+    <h4>Scenario 5: "The Airport Save"（机场救场）</h4>
+    <p class="scene-meta">Joel 在机场赶客户会议，只有手机</p>
+    <ul class="steps">
+      <li data-step="1">发现问题 → PPT 没上传，Harris assigned but blocked</li>
+      <li data-step="2">Teams Bot 提醒 → 发了一条消息 + 已经做好的 deck</li>
+      <li data-step="3">手机确认 → "Yes, share it. Also tell Maria she's off the hook"</li>
+      <li data-step="4">跨应用执行 → 分享文件、通知 Maria、更新 Planner</li>
+      <li data-step="5">持续跟进 → 客户有问题，数据已准备好</li>
+      <li data-step="6">全部就绪 → 到达时一切准备好了</li>
+    </ul>
+    <div class="value"><strong>核心价值</strong>：移动端 + 跨应用执行。一句话指令，AI 帮你在多个系统里完成操作。</div>
+  </div>
+
+  <hr>
+
+  <h2>三、Co-create 工作台（最新设计方向）</h2>
+
+  <p>从 co-create.png 和 next design 可以看到：</p>
+
+  <h3>核心界面</h3>
+  <ul>
+    <li>左侧：任务列表（Open Tasks，按日期分组：Monday、This Week、Later）</li>
+    <li>右上：AI 对话区（Chat response）</li>
+    <li>右下：工具栏（Workspace、Activity、Settings）</li>
+  </ul>
+
+  <h3>关键功能</h3>
+  <ul class="feature-list">
+    <li><strong>Start</strong>：首页，展示任务列表 + 欢迎语</li>
+    <li><strong>Select a folder</strong>：选择工作文件夹</li>
+    <li><strong>Create workspace</strong>：创建工作区</li>
+    <li><strong>Content</strong>：内容展示（任务详情）</li>
+    <li><strong>Chat session</strong>：与 AI 对话</li>
+    <li><strong>Search sessions</strong>：搜索历史对话</li>
+  </ul>
+
+  <div class="highlight-box">
+    <p><strong>"Co-create · thought partner"模式</strong>：AI 不只是执行任务，而是作为"思考伙伴"——帮你草拟邮件时，它会问你"Could you make it shorter and more personal with a better tone than what you have written?"，然后迭代修改。</p>
+  </div>
+
+  <hr>
+
+  <h2>四、ClawPilot 的产品策略总结</h2>
+
+  <table>
+    <thead>
+      <tr><th>维度</th><th>ClawPilot 的做法</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>入口</strong></td><td>Teams Chat（不是独立 App），用户零学习成本</td></tr>
+      <tr><td><strong>交互</strong></td><td>对话式，AI 主动推送 + 用户确认</td></tr>
+      <tr><td><strong>核心卖点</strong></td><td>"工作自己完成了"——不是帮你做，是替你做完了等你确认</td></tr>
+      <tr><td><strong>场景驱动</strong></td><td>5 个真实工作场景，每个都是"Old→New"的故事</td></tr>
+      <tr><td><strong>平台</strong></td><td>Desktop（Electron）+ Mobile（Teams Bot）+ Web（Co-create）</td></tr>
+      <tr><td><strong>自主权</strong></td><td>从提醒 → 准备 → 执行 → 自动完成，逐步升级</td></tr>
+      <tr><td><strong>重复工作</strong></td><td>模式识别后自动执行（Scenario 4）</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>五、对 Concordia 的启示</h2>
+
+  <table>
+    <thead>
+      <tr><th>ClawPilot 做得好的</th><th>我们可以学的</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>场景驱动的产品叙事</strong></td><td>我们的 Old-New 故事也是这个思路，但需要更多真实场景</td></tr>
+      <tr><td><strong>Teams Bot 作为入口</strong></td><td>我们的 Teams Relay 就是这个，但体验不够顺滑</td></tr>
+      <tr><td><strong>自动完成 + 确认</strong></td><td>我们的 Proactive 方向一致，但执行深度不够（还停在"发现"阶段）</td></tr>
+      <tr><td><strong>Co-create 工作台</strong></td><td>类似我们的 V8 工作台，但它更简洁（只有任务+对话）</td></tr>
+      <tr><td><strong>移动端</strong></td><td>我们完全没有移动端方案</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box">
+    <p><strong>ClawPilot 最大的优势不是功能，是"故事"</strong>——每个场景都让人想说"我也需要这个"。我们的产品文档和 Demo 需要达到这个叙事水平。</p>
+    <p><strong>核心差异化</strong>：ClawPilot 做个人助手做到了极致，但它没有团队维度。Concordia 的机会在于：不只帮一个人，帮一个团队——项目空间、多碳多硅、角色自适应，这些是 ClawPilot 没有也短期不会做的。</p>
+  </div>
+
+</div>
+</body>
+</html>
